@@ -1,0 +1,48 @@
+{% extends "global_layout.html" %}
+{% block content %}
+<div class="container">
+    {% include "flash_messages.html" %}
+    <div class="row" id="row">
+        <div class="col-md-12">
+            <div class="card" id="card-container">
+                <div class="card-body" id="card">
+                {% if researcher|length == 0 %}
+                    <h1 style="margin-top: 5rem;">No Researcher found!</h1>
+                {% else %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Surname</th>
+                                    <th>gender</th>
+                                    <th>org_id</th>
+                                    <th>Birth Date</th>
+                                    <th>Start Date</th>
+                                    <th>Last Update</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for researcher in researcher %}
+                                    <tr>
+                                        <td> {{ researcher.researcher_id}} </td>
+                                        <td> {{ researcher.first_name }} </td>
+                                        <td> {{ researcher.last_name }} </td>
+                                        <td> {{ researcher.sex }} </td>
+                                        <td> {{ researcher.organization_id }} </td>
+                                        <td> {{ researcher.date_of_birth }} </td>
+                                        <td> {{ researcher.start_date }} </td>
+                                        <td> {{ researcher.last_update }} </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
