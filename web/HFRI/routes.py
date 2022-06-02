@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, abort
 from flask_mysqldb import MySQL
 from HFRI import app, db ## initially created by __init__.py, need to be used here
-from HFRI.forms import organization_form
+from HFRI.forms import organization_form, researcher_form, project_form
 
 @app.route("/")
 def index():
@@ -12,23 +12,6 @@ def index():
     except Exception as e:
         print(e)
         return render_template("landing.html", pageTitle = "Landing Page")
-
-@app.route("/researcher")
-def getResearcher():
-    """
-    Retrieve students from database
-    """
-    try:
-        cur = db.connection.cursor()
-        cur.execute("SELECT * FROM researcher") 
-        column_names = [i[0] for i in cur.description]
-        researcher = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
-        cur.close()
-        return render_template("researcher.html", researcher = researcher, pageTitle = "Researchers Page")
-    except Exception as e:
-        ## if the connection to the database fails, return HTTP response 500
-        flash(str(e), "danger")
-        abort(500)
 
 @app.route("/show_tables")
 def get_tables():
@@ -46,6 +29,64 @@ def get_tables():
         ## if the connection to the database fails, return HTTP response 500
         flash(str(e), "danger")
         abort(500)
+
+@app.route("/researcher")
+def get_researcher():
+    """
+    Retrieve students from database
+    """
+    try:
+        form = researcher_form()
+        cur = db.connection.cursor()
+        cur.execute("SELECT * FROM researcher") 
+        column_names = [i[0] for i in cur.description]
+        researcher = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
+        cur.close()
+        return render_template("researcher.html", researcher = researcher, pageTitle = "Researchers Page", form = form)
+    except Exception as e:
+        ## if the connection to the database fails, return HTTP response 500
+        flash(str(e), "danger")
+        abort(500)
+
+
+@app.route("/researcher/update/<int:researcherID>", methods = ["POST"])
+def update_researcher(researcherID):
+    """
+    Update a student in the database, by id
+    """
+    form = researcher_form()
+    updateData = form.__dict__
+    if(form.validate_on_submit()):
+        query = "UPDATE researcher SET first_name = '{}', last_name = '{}', sex = '{}', date_of_birth = '{}', start_date = '{}', organization_id = '{}'  WHERE researcher_id = {};".format(updateData['first_name'].data, updateData['last_name'].data, updateData['sex'].data,  updateData['date_of_birth'].data,  updateData['start_date'].data, updateData['organization_id'].data,  researcherID)
+        try:
+            cur = db.connection.cursor()
+            cur.execute(query)
+            db.connection.commit()
+            cur.close()
+            flash("Researcher updated successfully", "success")
+        except Exception as e:
+            flash(str(e), "danger")
+    else:
+        for category in form.errors.values():
+            for error in category:
+                flash(error, "danger")
+    return redirect(url_for("get_researcher"))
+
+@app.route("/researcher/delete/<int:researcherID>", methods = ["POST"])
+def delete_researcher(researcherID):
+    """
+    Delete student by id from database
+    """
+    query = f"DELETE FROM researcher WHERE researcher_id = {researcherID};"
+    try:
+        cur = db.connection.cursor()
+        cur.execute(query)
+        db.connection.commit()
+        cur.close()
+        flash("Researcher deleted successfully", "primary")
+    except Exception as e:
+        flash(str(e), "danger")
+    return redirect(url_for("get_researcher"))
 
 @app.route("/deliverable")
 def get_deliverables():
@@ -122,18 +163,59 @@ def delete_organization(orgID):
     return redirect(url_for("get_organization"))
 
 
-# @app.route("/researcher/delete/<int:researcherID>", methods = ["POST"])
-# def deleteStudent(researcherID):
-#     """
-#     Delete student by id from database
-#     """
-#     query = f"DELETE FROM researcher WHERE id = {researcherID};"
-#     try:
-#         cur = db.connection.cursor()
-#         cur.execute(query)
-#         db.connection.commit()
-#         cur.close()
-#         flash("Student deleted successfully", "primary")
-#     except Exception as e:
-#         flash(str(e), "danger")
-#     return redirect(url_for("getStudents"))
+@app.route("/project")
+def get_project():
+    """
+    Retrieve students from database
+    """
+    try:
+        form = project_form()
+        cur = db.connection.cursor()
+        cur.execute("SELECT * from project") 
+        column_names = [i[0] for i in cur.description]
+        projects = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
+        cur.close()
+        return render_template("project.html", projects = projects, pageTitle = "Projects Page", form = form)
+    except Exception as e:
+        ## if the connection to the database fails, return HTTP response 500
+        flash(str(e), "danger")
+        abort(500)
+
+@app.route("/project/update/<int:projectID>", methods = ["POST"])
+def update_project(projectID):
+    """
+    Update a student in the database, by id
+    """
+    form = project_form()
+    updateData = form.__dict__
+    if(form.validate_on_submit()):
+        query = "UPDATE project SET title = '{}', summary = '{}', funds = '{}', start_date = '{}', end_date = '{}', grade = '{}', evaluation_date = '{}', program_id = '{}', evaluator_id = '{}', supervisor_id = '{}', executive_id = '{}', organization_id = '{}' WHERE project_id = '{}';".format(updateData['title'].data, updateData['summary'].data, updateData['funds'].data,  updateData['start_date'].data,  updateData['end_date'].data, updateData['grade'].data, updateData['evaluation_date'].data, updateData['program_id'].data, updateData['evaluator_id'].data, updateData['supervisor_id'].data, updateData['executive_id'].data, updateData['organization_id'].data, projectID)
+        try:
+            cur = db.connection.cursor()
+            cur.execute(query)
+            db.connection.commit()
+            cur.close()
+            flash("Project updated successfully", "success")
+        except Exception as e:
+            flash(str(e), "danger")
+    else:
+        for category in form.errors.values():
+            for error in category:
+                flash(error, "danger")
+    return redirect(url_for("get_project"))
+
+@app.route("/project/delete/<int:projectID>", methods = ["POST"])
+def delete_project(projectID):
+    """
+    Delete student by id from database
+    """
+    query = f"DELETE FROM project WHERE project_id = {projectID};"
+    try:
+        cur = db.connection.cursor()
+        cur.execute(query)
+        db.connection.commit()
+        cur.close()
+        flash("Project deleted successfully", "primary")
+    except Exception as e:
+        flash(str(e), "danger")
+    return redirect(url_for("get_project"))
