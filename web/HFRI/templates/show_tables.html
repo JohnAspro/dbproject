@@ -1,0 +1,39 @@
+{% extends "global_layout.html" %}
+{% block content %}
+<div class="container">
+    {% include "flash_messages.html" %}
+    <div class="row" id="row">
+        <div class="col-md-12">
+            <div class="card" id="card-container">
+                <div class="card-body" id="card">
+                {% if tables|length == 0 %}
+                    <h1 style="margin-top: 5rem;">No tables Found!</h1>
+                {% else %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Table Name</th>
+                                    <th>See the Table</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tables in tables %}
+                                    <tr>
+                                        <td> {{ tables.Tables_in_HFRI }} </td>
+                                        <td>
+                                        <a class="btn btn-primary" id="show-btn" href="/{{tables.Tables_in_HFRI}}">Show</a>
+                                        </td>
+                                    </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
