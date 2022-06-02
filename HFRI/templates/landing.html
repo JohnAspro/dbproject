@@ -1,0 +1,26 @@
+{% extends "global_layout.html" %}
+{% block content %}
+<div class="container" id="row-container">
+    {% include "flash_messages.html" %}
+    <div class="row" id="row">
+        <div class="col-md-4">
+            <div class="card" id="card-container-layout">
+                <div class="card-body" id="card">
+                    <h4 class="card-title">Insert Entity</h4>
+                    <p class="card-text" id="paragraph">Insert an entity in any Table of the Database</p>
+                    <a class="btn btn-primary" id="show-btn" href="/students">Show</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card" id="card-container-layout">
+                <div class="card-body" id="card">
+                    <h4 class="card-title">View Tables</h4>
+                    <p class="card-text" id="paragraph">See the tables of the Database<br></p>
+                    <a class="btn btn-primary" id="show-btn" href="/show_tables">Show</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
