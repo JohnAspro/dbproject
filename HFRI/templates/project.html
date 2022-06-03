@@ -28,6 +28,7 @@
                                     <th>Organization ID</th>
                                     <th>Last Update</th>
                                     <th>Modify</th>
+                                    <th>Delete</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -52,8 +53,8 @@
                                             data-toggle="modal"
                                             data-id = "{{projects.project_id}}"
                                             data-title="{{projects.title}}"
-                                            data-summary= "{{projects.summary}}"  
-                                            data-funds="{{projects.funds}}" 
+                                            data-summary= "{{projects.summary}}"
+                                            data-funds="{{projects.funds}}"
                                             data-start_date="{{projects.start_date}}"
                                             data-end_date="{{projects.end_date}}"
                                             data-grade="{{projects.grade}}"
@@ -70,12 +71,12 @@
                                             </a>
                                         </td>
                                         <td>
-                                            <button 
-                                            style = "all: unset; cursor: pointer;" 
+                                            <button
+                                            style = "all: unset; cursor: pointer;"
                                             type = "button"
-                                            data-bs-toggle = "modal" 
+                                            data-bs-toggle = "modal"
                                             data-bs-target = "#deleteModal"
-                                            data-id = "{{ projects.project_id }}" 
+                                            data-id = "{{ projects.project_id }}"
                                             onclick = "setDeleteModalFields(this)">
                                                 <i class = "fa fa-trash"></i>
                                             </button>
@@ -105,7 +106,6 @@
                 <form id="modal-form">
                     {{ form.hidden_tag() }}
                     <div style="text-align: center;">
-                        <input type="text" name="id" id="id" readonly>
                         <!-- Setting required to false disables the HTML attribute and leaves input validation to the backend -->
                         {{ form.title(id = "title", required = False) }}
                         {{ form.summary(id = "summary", required = False) }}

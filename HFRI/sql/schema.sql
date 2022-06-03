@@ -23,7 +23,7 @@ create table university (
 	budget_from_minedu int unsigned not null,
   last_update timestamp not null default current_timestamp on update current_timestamp,
   primary key (organization_id),
-  constraint fk_university_id foreign key (organization_id) references org (organization_id) on delete restrict on update cascade
+  constraint fk_university_id foreign key (organization_id) references org (organization_id) on delete cascade on update cascade
 );
 
 -- research_center(organization_id, budget_from_minedu, budget_from_private_acts, last_update)
@@ -33,7 +33,7 @@ create table research_center (
 	budget_from_private_acts int unsigned,
   last_update timestamp not null default current_timestamp on update current_timestamp,
   primary key (organization_id),
-  constraint fk_research_center_id foreign key (organization_id) references org (organization_id) on delete restrict on update cascade
+  constraint fk_research_center_id foreign key (organization_id) references org (organization_id) on delete cascade on update cascade
 );
 
 -- company(organization_id, equity, last_update)
@@ -42,7 +42,7 @@ create table company (
 	equity int unsigned,
   last_update timestamp not null default current_timestamp on update current_timestamp,
   primary key (organization_id),
-  constraint fk_company_id foreign key (organization_id) references org (organization_id) on delete restrict on update cascade
+  constraint fk_company_id foreign key (organization_id) references org (organization_id) on delete cascade on update cascade
 );
 
 -- phone_number(organization_id, p_number, last_update)
@@ -51,7 +51,7 @@ create table phone_number (
 	p_number varchar(20) not null,
   last_update timestamp not null default current_timestamp on update current_timestamp,
   primary key (p_number),
-  constraint fk_phone_organization_id foreign key (organization_id) references org (organization_id) on delete restrict on update cascade
+  constraint fk_phone_organization_id foreign key (organization_id) references org (organization_id) on delete cascade on update cascade
 );
 
 -- scientific_field(scientific_field_name, last_update)
@@ -72,7 +72,7 @@ create table researcher (
   organization_id int unsigned,
   last_update timestamp not null default current_timestamp on update current_timestamp,
   primary key (researcher_id),
-  constraint fk_researcher_organization_id foreign key (organization_id) references org (organization_id) on delete restrict on update cascade
+  constraint fk_researcher_organization_id foreign key (organization_id) references org (organization_id) on delete cascade on update cascade
 );
 
 -- executive(executive_id, executive_name, last_update)
@@ -109,11 +109,11 @@ create table project (
   organization_id int unsigned not null,
   last_update timestamp not null default current_timestamp on update current_timestamp,
   primary key (project_id),
-  constraint fk_program_id foreign key (program_id) references program (program_id) on delete restrict on update cascade,
-  constraint fk_evaluator_id foreign key (evaluator_id) references researcher (researcher_id) on delete restrict on update cascade,
-  constraint fk_supervisor_id foreign key (supervisor_id) references researcher (researcher_id) on delete restrict on update cascade,
-  constraint fk_executive_id foreign key (executive_id) references executive (executive_id) on delete restrict on update cascade,
-  constraint fk_organization_id foreign key (organization_id) references org (organization_id) on delete restrict on update cascade,
+  constraint fk_program_id foreign key (program_id) references program (program_id) on delete cascade on update cascade,
+  constraint fk_evaluator_id foreign key (evaluator_id) references researcher (researcher_id) on delete cascade on update cascade,
+  constraint fk_supervisor_id foreign key (supervisor_id) references researcher (researcher_id) on delete cascade on update cascade,
+  constraint fk_executive_id foreign key (executive_id) references executive (executive_id) on delete cascade on update cascade,
+  constraint fk_organization_id foreign key (organization_id) references org (organization_id) on delete cascade on update cascade,
   constraint check_dates check(start_date<end_date and evaluation_date<start_date),
 	constraint min_max_duration check(timestampdiff(year, start_date, end_date)>=1 and timestampdiff(year, start_date, end_date)<=4)
 );
@@ -124,8 +124,8 @@ create table focuses_on (
   scientific_field_name varchar(50) not null,
   last_update timestamp not null default current_timestamp on update current_timestamp,
   primary key (project_id, scientific_field_name),
-  constraint fk_projectf_id foreign key (project_id) references project (project_id) on delete restrict on update cascade,
-  constraint fk_scientific_field_name foreign key (scientific_field_name) references scientific_field (scientific_field_name) on delete restrict on update cascade
+  constraint fk_projectf_id foreign key (project_id) references project (project_id) on delete cascade on update cascade,
+  constraint fk_scientific_field_name foreign key (scientific_field_name) references scientific_field (scientific_field_name) on delete cascade on update cascade
 );
 
 -- deliverable(title, summary, project_id, last_update)
@@ -136,7 +136,7 @@ create table deliverable (
 	project_id int unsigned not null,
   last_update timestamp not null default current_timestamp on update current_timestamp,
   primary key (title, project_id),
-	constraint fk_deliverable_project_id foreign key (project_id) references project (project_id) on delete restrict on update cascade
+	constraint fk_deliverable_project_id foreign key (project_id) references project (project_id) on delete cascade on update cascade
 );
 
 -- works_on(project_id, researcher_id, last_update)
@@ -145,6 +145,25 @@ create table works_on (
   researcher_id int unsigned not null,
   last_update timestamp not null default current_timestamp on update current_timestamp,
   primary key (project_id, researcher_id),
-  constraint fk_projectw_id foreign key (project_id) references project (project_id) on delete restrict on update cascade,
-  constraint fk_researcher_id foreign key (researcher_id) references researcher (researcher_id) on delete restrict on update cascade
+  constraint fk_projectw_id foreign key (project_id) references project (project_id) on delete cascade on update cascade,
+  constraint fk_researcher_id foreign key (researcher_id) references researcher (researcher_id) on delete cascade on update cascade
 );
+
+-- views
+
+-- number of projects per researcher
+CREATE VIEW pr_re AS
+(SELECT r.last_name, r.first_name, count(p.title) num_of_proj from project p
+INNER JOIN works_on wo
+ON (p.project_id = wo.project_id)
+INNER JOIN researcher r
+ON (r.researcher_id = wo.researcher_id)
+GROUP BY r.researcher_id
+);
+
+-- number of phone numbers per organization
+CREATE VIEW p_per_org AS
+(SELECT  o.organization_name, count(*) num_of_phones  from phone_number pn
+INNER JOIN org o
+ON (pn.organization_id = o.organization_id)
+GROUP BY o.organization_name);

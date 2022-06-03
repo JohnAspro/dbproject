@@ -21,7 +21,8 @@
                                     <th>Postal Code</th>
                                     <th>City</th>
                                     <th>Last Update</th>
-                                    <th>Modify</th> 
+                                    <th>Modify</th>
+                                    <th>Delete</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -40,8 +41,8 @@
                                             data-toggle="modal"
                                             data-id = "{{orgs.organization_id}}"
                                             data-abbrev="{{orgs.abbreviation}}"
-                                            data-name= "{{orgs.name}}"  
-                                            data-street="{{orgs.street}}" 
+                                            data-name= "{{orgs.name}}"
+                                            data-street="{{orgs.street}}"
                                             data-street_num="{{orgs.street_number}}"
                                             data-postal="{{orgs.postal_code}}"
                                             data-city="{{orgs.city}}"
@@ -52,12 +53,12 @@
                                             </a>
                                         </td>
                                         <td>
-                                            <button 
-                                            style = "all: unset; cursor: pointer;" 
+                                            <button
+                                            style = "all: unset; cursor: pointer;"
                                             type = "button"
-                                            data-bs-toggle = "modal" 
+                                            data-bs-toggle = "modal"
                                             data-bs-target = "#deleteModal"
-                                            data-id = "{{ orgs.organization_id }}" 
+                                            data-id = "{{ orgs.organization_id }}"
                                             onclick = "setDeleteModalFields(this)">
                                                 <i class = "fa fa-trash"></i>
                                             </button>
@@ -87,7 +88,6 @@
                 <form id="modal-form">
                     {{ form.hidden_tag() }}
                     <div style="text-align: center;">
-                        <input type="text" name="id" id="id" readonly>
                         <!-- Setting required to false disables the HTML attribute and leaves input validation to the backend -->
                         {{ form.abbreviation(id = "abbreviation", required = False) }}
                         {{ form.name(id = "name", required = False) }}

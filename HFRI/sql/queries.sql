@@ -8,20 +8,7 @@ WHERE YEAR(p.end_date) - YEAR(p.start_date) = 4
 and e.executive_name = 'Panagiotis Condakos';
 
 -- 3.2
-CREATE VIEW pr_re AS
-(SELECT r.last_name, r.first_name, count(p.title) num_of_proj from project p
-INNER JOIN works_on wo
-ON (p.project_id = wo.project_id)
-INNER JOIN researcher r
-ON (r.researcher_id = wo.researcher_id)
-GROUP BY r.researcher_id
-);
-
-CREATE VIEW p_per_org AS
-(SELECT  o.organization_name, count(*) num_of_phones  from phone_number pn
-INNER JOIN org o
-ON (pn.organization_id = o.organization_id)
-GROUP BY o.organization_name);
+select * from pr_re;
 
 select * from p_per_org;
 
@@ -76,7 +63,7 @@ INNER join project p
 ON (ex.executive_id = p.executive_id)
 INNER JOIN org o
 ON o.organization_id = p.organization_id
-GROUP BY ex.onoma, o.onoma
+GROUP BY ex.executive_name, o.organization_name
 ORDER BY money DESC
 LIMIT 5;
 

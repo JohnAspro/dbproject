@@ -18,6 +18,7 @@
                                     <th>Department</th>
                                     <th>Last Update</th>
                                     <th>Modify</th>
+                                    <th>Delete</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -76,7 +77,6 @@
                 <form id="modal-form">
                     {{ form.hidden_tag() }}
                     <div style="text-align: center;">
-                        <input type="text" name="id" id="id" readonly>
                         <!-- Setting required to false disables the HTML attribute and leaves input validation to the backend -->
                         {{ form.program_name(id = "program_name", required = False) }}
                         {{ form.department(id = "department", required = False) }}
