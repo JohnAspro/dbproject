@@ -14,17 +14,20 @@
                             <thead>
                                 <tr>
                                     <th>Table Name</th>
-                                    <th>See the Table</th>
+                                    <th>See data</th>
+                                    <th>Insert data</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for tables in tables %}
+                                {% for table, name in tables|zip(names) %}
                                     <tr>
-                                        <td> {{ tables.Tables_in_HFRI }} </td>
+                                        <td> {{ name }} </td>
                                         <td>
-                                        <a class="btn btn-primary" id="show-btn" href="/{{tables.Tables_in_HFRI}}">Show</a>
+                                        <a class="btn btn-primary" id="show-btn" href="/{{table.Tables_in_HFRI}}">Show</a>
                                         </td>
-                                    </td>
+                                        <td>
+                                        <a class="btn btn-primary" id="show-btn" href="/{{table.Tables_in_HFRI}}/insert">Insert</a>
+                                        </td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
