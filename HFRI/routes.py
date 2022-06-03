@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, flash, redirect, url_for, abort
+from flask import Flask, render_template, request, flash, redirect, url_for, abort, request
 from flask_mysqldb import MySQL
 from HFRI import app, db ## initially created by __init__.py, need to be used here
-from HFRI.forms import organization_form, researcher_form, project_form, program_form, deliverable_form, executive_form, university_form, research_center_form, company_form, phone_number_form, scientific_field_form
+from HFRI.forms import organization_form, researcher_form, project_form, program_form, deliverable_form, executive_form, university_form, research_center_form, company_form, phone_number_form, scientific_field_form, focuses_on_form, works_on_form
 
 @app.route("/")
 def index():
@@ -48,7 +48,6 @@ def get_researcher():
         ## if the connection to the database fails, return HTTP response 500
         flash(str(e), "danger")
         abort(500)
-
 
 @app.route("/researcher/update/<int:researcherID>", methods = ["POST"])
 def update_researcher(researcherID):
@@ -163,7 +162,6 @@ def delete_organization(orgID):
         flash(str(e), "danger")
     return redirect(url_for("get_organization"))
 
-
 @app.route("/project")
 def get_project():
     """
@@ -221,7 +219,6 @@ def delete_project(projectID):
         flash(str(e), "danger")
     return redirect(url_for("get_project"))
 
-
 @app.route("/program")
 def get_program():
     """
@@ -239,7 +236,6 @@ def get_program():
         ## if the connection to the database fails, return HTTP response 500
         flash(str(e), "danger")
         abort(500)
-
 
 @app.route("/program/update/<int:programID>", methods = ["POST"])
 def update_program(programID):
@@ -280,7 +276,6 @@ def delete_program(programID):
         flash(str(e), "danger")
     return redirect(url_for("get_program"))
 
-
 @app.route("/researcher/insert", methods = ["GET", "POST"]) ## "GET" by default
 def insert_researcher():
     """
@@ -304,7 +299,6 @@ def insert_researcher():
 
     return render_template("insert_researcher.html", pageTitle = "Insert Researcher", form = form)
 
-
 @app.route("/program/insert", methods = ["GET", "POST"]) ## "GET" by default
 def insert_program():
     """
@@ -327,7 +321,6 @@ def insert_program():
 
     ## else, response for GET request
     return render_template("insert_program.html", pageTitle = "Insert Program", form = form)
-
 
 @app.route("/project/insert", methods = ["GET", "POST"]) ## "GET" by default
 def insert_project():
@@ -536,3 +529,50 @@ def insert_scientific_field():
 
     ## else, response for GET request
     return render_template("insert_scientific_field.html", pageTitle = "Insert Scientific field", form = form)
+
+@app.route("/focuses_on/insert", methods = ["GET", "POST"]) ## "GET" by default
+def insert_focuses_on():
+    """
+    Insert scientific fields that a project focuses on in the database
+    """
+    form = focuses_on_form()
+    ## when the form is submitted
+    if(request.method == "POST" and form.validate_on_submit()):
+        newfocuses_on = form.__dict__
+        query = "INSERT INTO focuses_on(project_id, scientific_field_name) VALUES ('{}', '{}');".format(newphone_number['project_id'].data, newphone_number['scientific_field_name'].data)
+        try:
+            cur = db.connection.cursor()
+            cur.execute(query)
+            db.connection.commit()
+            cur.close()
+            flash("Scientific field that project focuses on inserted successfully", "success")
+            return redirect(url_for("index"))
+        except Exception as e: ## OperationalError
+            flash(str(e), "danger")
+
+    ## else, response for GET request
+    return render_template("insert_focuses_on.html", pageTitle = "Insert scientific field for a project", form = form)
+
+
+@app.route("/works_on/insert", methods = ["GET", "POST"]) ## "GET" by default
+def insert_works_on():
+    """
+    Insert new project for a researcher in the database
+    """
+    form = works_on_form()
+    ## when the form is submitted
+    if(request.method == "POST" and form.validate_on_submit()):
+        newworks_on = form.__dict__
+        query = "INSERT INTO works_on(project_id, researcher_id) VALUES ('{}', '{}');".format(newphone_number['project_id'].data, newphone_number['researcher_id'].data)
+        try:
+            cur = db.connection.cursor()
+            cur.execute(query)
+            db.connection.commit()
+            cur.close()
+            flash("New project for the researcher inserted successfully", "success")
+            return redirect(url_for("index"))
+        except Exception as e: ## OperationalError
+            flash(str(e), "danger")
+
+    ## else, response for GET request
+    return render_template("insert_works_on.html", pageTitle = "Insert new project for a researcher", form = form)
