@@ -30,7 +30,7 @@
                                     <tr>
                                         <td> {{ orgs.organization_id }} </td>
                                         <td> {{ orgs.abbreviation }} </td>
-                                        <td> {{ orgs.name }} </td>
+                                        <td> {{ orgs.organization_name }} </td>
                                         <td> {{ orgs.street }} </td>
                                         <td> {{ orgs.street_number }} </td>
                                         <td> {{ orgs.postal_code }} </td>
@@ -41,7 +41,7 @@
                                             data-toggle="modal"
                                             data-id = "{{orgs.organization_id}}"
                                             data-abbrev="{{orgs.abbreviation}}"
-                                            data-name= "{{orgs.name}}"
+                                            data-organization_name= "{{orgs.organization_name}}"
                                             data-street="{{orgs.street}}"
                                             data-street_num="{{orgs.street_number}}"
                                             data-postal="{{orgs.postal_code}}"
@@ -90,7 +90,7 @@
                     <div style="text-align: center;">
                         <!-- Setting required to false disables the HTML attribute and leaves input validation to the backend -->
                         {{ form.abbreviation(id = "abbreviation", required = False) }}
-                        {{ form.name(id = "name", required = False) }}
+                        {{ form.organization_name(id = "organization_name", required = False) }}
                         {{ form.street(id = "street", required = False) }}
                         {{ form.street_number(id = "street_number", required = False) }}
                         {{ form.postal_code(id = "postal_code", required = False) }}
@@ -99,14 +99,14 @@
                     <div>
                         {% if form.abbreviation.errors %}
                         <ul class = "errors">
-                            {% for error in form.name.errors %}
+                            {% for error in form.organization_name.errors %}
                             <li class = "alert text-danger">{{ error }}</li>
                             {% endfor %}
                         </ul>
                         {% endif %}
-                        {% if form.name.errors %}
+                        {% if form.organization_name.errors %}
                         <ul class = "errors">
-                            {% for error in form.name.errors %}
+                            {% for error in form.organization_name.errors %}
                             <li class = "alert text-danger">{{ error }}</li>
                             {% endfor %}
                         </ul>
@@ -180,7 +180,7 @@
 <script>
     function setModalFields(row) {
         document.getElementById("abbreviation").value = row.getAttribute("data-abbrev");
-        document.getElementById("name").value = row.getAttribute("data-name");
+        document.getElementById("organization_name").value = row.getAttribute("data-organization_name");
         document.getElementById("street").value = row.getAttribute("data-street");
         document.getElementById("street_number").value = row.getAttribute("data-street_num");
         document.getElementById("postal_code").value = row.getAttribute("data-postal");

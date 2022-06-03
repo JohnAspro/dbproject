@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, abort
 from flask_mysqldb import MySQL
 from HFRI import app, db ## initially created by __init__.py, need to be used here
-from HFRI.forms import organization_form, researcher_form, project_form, program_form
+from HFRI.forms import organization_form, researcher_form, project_form, program_form, deliverable_form, executive_form, university_form, research_center_form, company_form, phone_number_form, scientific_field_form
 
 @app.route("/")
 def index():
@@ -24,7 +24,7 @@ def get_tables():
         cur.close()
         names = ["Companies", "Deliverables", "Executives", "Projects and Scientific Fields", "Organizations",
         "Phones per organization", "Phone numbers", "Number of projects per researcher", "Programs", "Projects", "Research Centers",
-        "Researchers", "Scientific Fields", "Universities", "Researchers and projects"]
+        "Researchers", "Scientific fields", "Universities", "Researchers and projects"]
         return render_template("show_tables.html", names=names, tables=tables, pageTitle = "Data")
     except Exception as e:
         ## if the connection to the database fails, return HTTP response 500
@@ -234,7 +234,7 @@ def get_program():
         column_names = [i[0] for i in cur.description]
         programs = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
         cur.close()
-        return render_template("program.html", programs = programs, pageTitle = "Programs Page", form = form)
+        return render_template("program.html", programs = programs, pageTitle = "Programs", form = form)
     except Exception as e:
         ## if the connection to the database fails, return HTTP response 500
         flash(str(e), "danger")
@@ -351,3 +351,188 @@ def insert_project():
 
     ## else, response for GET request
     return render_template("insert_project.html", pageTitle = "Insert Project", form = form)
+
+@app.route("/org/insert", methods = ["GET", "POST"]) ## "GET" by default
+def insert_organization():
+    """
+    Create new organization in the database
+    """
+    form = organization_form()
+    ## when the form is submitted
+    if(request.method == "POST" and form.validate_on_submit()):
+        neworg = form.__dict__
+        query = "INSERT INTO org(abbreviation, organization_name, street, street_number, postal_code, city) VALUES ('{}', '{}', '{}', '{}', '{}', '{}');".format(neworg['abbreviation'].data, neworg['organization_name'].data, neworg['street'].data,  neworg['street_number'].data,  neworg['postal_code'].data, neworg['city'].data)
+        try:
+            cur = db.connection.cursor()
+            cur.execute(query)
+            db.connection.commit()
+            cur.close()
+            flash("Organization inserted successfully", "success")
+            return redirect(url_for("index"))
+        except Exception as e: ## OperationalError
+            flash(str(e), "danger")
+
+    ## else, response for GET request
+    return render_template("insert_org.html", pageTitle = "Insert Organization", form = form)
+
+@app.route("/deliverable/insert", methods = ["GET", "POST"]) ## "GET" by default
+def insert_deliverable():
+    """
+    Create new deliverable in the database
+    """
+    form = deliverable_form()
+    ## when the form is submitted
+    if(request.method == "POST" and form.validate_on_submit()):
+        newdeliverable = form.__dict__
+        query = "INSERT INTO deliverable(title, summary, due_date, project_id) VALUES ('{}', '{}', '{} 00:00:00', '{}');".format(newdeliverable['title'].data, newdeliverable['summary'].data, newdeliverable['due_date'].data,  newdeliverable['project_id'].data)
+        try:
+            cur = db.connection.cursor()
+            cur.execute(query)
+            db.connection.commit()
+            cur.close()
+            flash("Deliverable inserted successfully", "success")
+            return redirect(url_for("index"))
+        except Exception as e: ## OperationalError
+            flash(str(e), "danger")
+
+    ## else, response for GET request
+    return render_template("insert_deliverable.html", pageTitle = "Insert Deliverable", form = form)
+
+@app.route("/executive/insert", methods = ["GET", "POST"]) ## "GET" by default
+def insert_executive():
+    """
+    Insert new executive in the database
+    """
+    form = executive_form()
+    ## when the form is submitted
+    if(request.method == "POST" and form.validate_on_submit()):
+        newexecutive = form.__dict__
+        query = "INSERT INTO executive(executive_name) VALUES ('{}');".format(newexecutive['executive_name'].data)
+        try:
+            cur = db.connection.cursor()
+            cur.execute(query)
+            db.connection.commit()
+            cur.close()
+            flash("Executive inserted successfully", "success")
+            return redirect(url_for("index"))
+        except Exception as e: ## OperationalError
+            flash(str(e), "danger")
+
+    ## else, response for GET request
+    return render_template("insert_executive.html", pageTitle = "Insert Executive", form = form)
+
+@app.route("/university/insert", methods = ["GET", "POST"]) ## "GET" by default
+def insert_uinversity():
+    """
+    Insert new university in the database
+    """
+    form = university_form()
+    ## when the form is submitted
+    if(request.method == "POST" and form.validate_on_submit()):
+        newuniversity = form.__dict__
+        query = "INSERT INTO university(organization_id, budget_from_minedu) VALUES ('{}', '{}');".format(newuniversity['organization_id'].data, newuniversity['budget_from_minedu'].data)
+        try:
+            cur = db.connection.cursor()
+            cur.execute(query)
+            db.connection.commit()
+            cur.close()
+            flash("University inserted successfully", "success")
+            return redirect(url_for("index"))
+        except Exception as e: ## OperationalError
+            flash(str(e), "danger")
+
+    ## else, response for GET request
+    return render_template("insert_university.html", pageTitle = "Insert University", form = form)
+
+@app.route("/research_center/insert", methods = ["GET", "POST"]) ## "GET" by default
+def insert_research_center():
+    """
+    Insert new research center in the database
+    """
+    form = research_center_form()
+    ## when the form is submitted
+    if(request.method == "POST" and form.validate_on_submit()):
+        newresearch_center = form.__dict__
+        query = "INSERT INTO research_center(organization_id, budget_from_minedu, budget_from_private_acts) VALUES ('{}', '{}', '{}');".format(newresearch_center['organization_id'].data,
+        newresearch_center['budget_from_minedu'].data, newresearch_center['budget_from_private_acts'].data)
+        try:
+            cur = db.connection.cursor()
+            cur.execute(query)
+            db.connection.commit()
+            cur.close()
+            flash("Research Center inserted successfully", "success")
+            return redirect(url_for("index"))
+        except Exception as e: ## OperationalError
+            flash(str(e), "danger")
+
+    ## else, response for GET request
+    return render_template("insert_research_center.html", pageTitle = "Insert Research Center", form = form)
+
+@app.route("/company/insert", methods = ["GET", "POST"]) ## "GET" by default
+def insert_company():
+    """
+    Insert new company in the database
+    """
+    form = company_form()
+    ## when the form is submitted
+    if(request.method == "POST" and form.validate_on_submit()):
+        newcompany = form.__dict__
+        query = "INSERT INTO company(organization_id, equity) VALUES ('{}', '{}');".format(newcompany['organization_id'].data, newcompany['equity'].data)
+        try:
+            cur = db.connection.cursor()
+            cur.execute(query)
+            db.connection.commit()
+            cur.close()
+            flash("Company inserted successfully", "success")
+            return redirect(url_for("index"))
+        except Exception as e: ## OperationalError
+            flash(str(e), "danger")
+
+    ## else, response for GET request
+    return render_template("insert_company.html", pageTitle = "Insert Company", form = form)
+
+@app.route("/phone_number/insert", methods = ["GET", "POST"]) ## "GET" by default
+def insert_phone_number():
+    """
+    Insert new phone number in the database
+    """
+    form = phone_number_form()
+    ## when the form is submitted
+    if(request.method == "POST" and form.validate_on_submit()):
+        newphone_number = form.__dict__
+        query = "INSERT INTO phone_number(organization_id, p_number) VALUES ('{}', '{}');".format(newphone_number['organization_id'].data, newphone_number['p_number'].data)
+        try:
+            cur = db.connection.cursor()
+            cur.execute(query)
+            db.connection.commit()
+            cur.close()
+            flash("Phone number inserted successfully", "success")
+            return redirect(url_for("index"))
+        except Exception as e: ## OperationalError
+            flash(str(e), "danger")
+
+    ## else, response for GET request
+    return render_template("insert_phone_number.html", pageTitle = "Insert Phone number", form = form)
+
+@app.route("/scientific_field/insert", methods = ["GET", "POST"]) ## "GET" by default
+def insert_scientific_field():
+    """
+    Insert new scientific field in the database
+    """
+    form = scientific_field_form()
+    ## when the form is submitted
+    if(request.method == "POST" and form.validate_on_submit()):
+        newscientific_field = form.__dict__
+        query = "INSERT INTO scientific_field(scientific_field_name) VALUES ('{}', '{}');".format(newscientific_field['scientific_field_name'].data)
+        try:
+            cur = db.connection.cursor()
+            cur.execute(query)
+            db.connection.commit()
+            cur.close()
+            flash("Scientific field inserted successfully", "success")
+            return redirect(url_for("index"))
+        except Exception as e: ## OperationalError
+            flash(str(e), "danger")
+
+    ## else, response for GET request
+    return render_template("insert_scientific_field.html", pageTitle = "Insert Scientific field", form = form)
