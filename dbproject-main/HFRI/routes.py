@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, abort, request
 from flask_mysqldb import MySQL
 from HFRI import app, db ## initially created by __init__.py, need to be used here
-from HFRI.forms import organization_form, researcher_form, project_form, program_form, deliverable_form, executive_form, university_form, research_center_form, company_form, phone_number_form, scientific_field_form, focuses_on_form, works_on_form
+from HFRI.forms import organization_form, researcher_form, project_form, program_form, deliverable_form, executive_form, university_form, research_center_form, company_form, phone_number_form, scientific_field_form
 
 global is_admin
 is_admin=False
@@ -42,7 +42,7 @@ def get_tables():
         cur = db.connection.cursor()
         cur.execute("show tables")
         column_names = [i[0] for i in cur.description]
-        tables = [dict(zip(column_names, entry)) for entry in cur.fetchall() if entry[0]!="p_sf" and entry[0]!="y_o"]        
+        tables = [dict(zip(column_names, entry)) for entry in cur.fetchall() if entry[0]!="p_sf" and entry[0]!="y_o"]
         cur.close()
         names = ["Companies", "Deliverables", "Executives", "Projects and Scientific Fields", "Organizations",
         "Phones per organization", "Phone numbers", "Number of projects per researcher", "Programs", "Projects", "Research Centers",
@@ -222,7 +222,7 @@ def update_project(projectID):
     form = project_form()
     updateData = form.__dict__
     if(form.validate_on_submit()):
-        query = "UPDATE project SET title = '{}', summary = '{}', funds = '{}', start_date = '{}', end_date = '{}', grade = '{}', evaluation_date = '{}', program_id = '{}', evaluator_id = '{}', supervisor_id = '{}', executive_id = '{}', organization_id = '{}' WHERE project_id = '{}';".format(updateData['title'].data, updateData['summary'].data, updateData['funds'].data,  updateData['start_date'].data,  updateData['end_date'].data, updateData['grade'].data, updateData['evaluation_date'].data, updateData['program_id'].data, updateData['evaluator_id'].data, updateData['supervisor_id'].data, updateData['executive_id'].data, updateData['organization_id'].data, projectID)
+        query = "UPDATE project SET title = '{}', summary = '{}', end_date = '{}' WHERE project_id = '{}';".format(updateData['title'].data, updateData['summary'].data, updateData['end_date'].data, projectID)
         if (is_admin==False):
             flash("You are not permitted to do changes", "danger")
             return redirect(url_for("get_project"))
@@ -321,6 +321,131 @@ def delete_program(programID):
     except Exception as e:
         flash(str(e), "danger")
     return redirect(url_for("get_program"))
+
+@app.route("/executive")
+def get_executive():
+    """
+    Retrieve executives from database
+    """
+    try:
+        form = executive_form()
+        cur = db.connection.cursor()
+        cur.execute("SELECT * FROM executive")
+        column_names = [i[0] for i in cur.description]
+        executives = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
+        cur.close()
+        return render_template("executive.html", executives = executives, pageTitle = "Executives", form = form)
+    except Exception as e:
+        ## if the connection to the database fails, return HTTP response 500
+        flash(str(e), "danger")
+        abort(500)
+
+@app.route("/executive/delete/<int:executiveID>", methods = ["POST"])
+def delete_executive(executiveID):
+    """
+    Delete executive by id from database
+    """
+    query = f"DELETE FROM executive WHERE executive_id = {executiveID};"
+    if (is_admin==False):
+        flash("You are not permitted to do changes", "danger")
+        return redirect(url_for("get_executive"))
+    try:
+        cur = db.connection.cursor()
+        cur.execute(query)
+        db.connection.commit()
+        cur.close()
+        flash("Executive deleted successfully", "primary")
+    except Exception as e:
+        flash(str(e), "danger")
+    return redirect(url_for("get_executive"))
+
+@app.route("/phone_number")
+def get_phone_number():
+    """
+    Retrieve phone numbers from database
+    """
+    try:
+        form = phone_number_form()
+        cur = db.connection.cursor()
+        cur.execute("SELECT * FROM phone_number")
+        column_names = [i[0] for i in cur.description]
+        phone_numbers = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
+        cur.close()
+        return render_template("phone_number.html", phone_numbers=phone_numbers, pageTitle = "Phone numbers", form = form)
+    except Exception as e:
+        ## if the connection to the database fails, return HTTP response 500
+        flash(str(e), "danger")
+        abort(500)
+
+@app.route("/phone_number/delete/<int:phonenumber>", methods = ["POST"])
+def delete_phone_number(phonenumber):
+    """
+    Delete phone number from database
+    """
+    query = "DELETE FROM phone_number WHERE p_number = '{}';".format(phonenumber)
+    if (is_admin==False):
+        flash("You are not permitted to do changes", "danger")
+        return redirect(url_for("get_phone_number"))
+    try:
+        cur = db.connection.cursor()
+        cur.execute(query)
+        db.connection.commit()
+        cur.close()
+        flash("Phone number deleted successfully", "primary")
+    except Exception as e:
+        flash(str(e), "danger")
+    return redirect(url_for("get_phone_number"))
+
+@app.route("/works_on")
+def get_works_on():
+    """
+    Retrieve researches and projects that work on from database
+    """
+    try:
+        cur = db.connection.cursor()
+        cur.execute("SELECT * FROM works_on")
+        column_names = [i[0] for i in cur.description]
+        works_on = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
+        cur.close()
+        return render_template("works_on.html", works_on=works_on, pageTitle = "Researchers and projects")
+    except Exception as e:
+        ## if the connection to the database fails, return HTTP response 500
+        flash(str(e), "danger")
+        abort(500)
+
+@app.route("/pr_re")
+def get_pre_re():
+    """
+    Retrieve number of projects per researcher from database
+    """
+    try:
+        cur = db.connection.cursor()
+        cur.execute("SELECT * FROM pr_re")
+        column_names = [i[0] for i in cur.description]
+        pr_re = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
+        cur.close()
+        return render_template("pr_re.html", pr_re=pr_re, pageTitle = "Number of projects per researcher")
+    except Exception as e:
+        ## if the connection to the database fails, return HTTP response 500
+        flash(str(e), "danger")
+        abort(500)
+
+@app.route("/scientific_field")
+def get_scientific_field():
+    """
+    Retrieve scientific fields from database
+    """
+    try:
+        cur = db.connection.cursor()
+        cur.execute("SELECT * FROM scientific_field")
+        column_names = [i[0] for i in cur.description]
+        scientific_fields = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
+        cur.close()
+        return render_template("scientific_field.html", scientific_fields=scientific_fields, pageTitle = "Scientific fields")
+    except Exception as e:
+        ## if the connection to the database fails, return HTTP response 500
+        flash(str(e), "danger")
+        abort(500)
 
 @app.route("/researcher/insert", methods = ["GET", "POST"]) ## "GET" by default
 def insert_researcher():
@@ -478,72 +603,8 @@ def insert_executive():
     ## else, response for GET request
     return render_template("insert_executive.html", pageTitle = "Insert Executive", form = form)
 
-@app.route("/university")
-def get_university():
-    """
-    Retrieve programs from database
-    """
-    try:
-        form = university_form()
-        cur = db.connection.cursor()
-        cur.execute("SELECT * FROM university")
-        column_names = [i[0] for i in cur.description]
-        org = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
-        cur.close()
-        return render_template("university.html", org = org, pageTitle = "Universities", form = form)
-    except Exception as e:
-        ## if the connection to the database fails, return HTTP response 500
-        flash(str(e), "danger")
-        abort(500)
-
-@app.route("/university/update/<int:universityID>", methods = ["POST"])
-def update_university(universityID):
-    """
-    Update a program in the database, by id
-    """
-    form = university_form()
-    updateData = form.__dict__
-    if(form.validate_on_submit()):
-        query = "UPDATE university SET budget_from_minedu = '{}' WHERE organization_id = {};".format(updateData['budget_from_minedu'].data, universityID)
-        if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
-            return redirect(url_for("get_university"))
-        try:
-            cur = db.connection.cursor()
-            cur.execute(query)
-            db.connection.commit()
-            cur.close()
-            flash("University updated successfully", "success")
-        except Exception as e:
-            flash(str(e), "danger")
-    else:
-        for category in form.errors.values():
-            for error in category:
-                flash(error, "danger")
-    return redirect(url_for("get_university"))
-
-@app.route("/university/delete/<int:universityID>", methods = ["POST"])
-def delete_university(universityID):
-    """
-    Delete program by id from database
-    """
-    query = f"DELETE FROM university WHERE organization_id = {universityID};"
-    if (is_admin==False):
-        flash("You are not permitted to do changes", "danger")
-        return redirect(url_for("get_university"))
-    try:
-        cur = db.connection.cursor()
-        cur.execute(query)
-        db.connection.commit()
-        cur.close()
-        flash("Program deleted successfully", "primary")
-    except Exception as e:
-        flash(str(e), "danger")
-    return redirect(url_for("get_university"))
-
-
 @app.route("/university/insert", methods = ["GET", "POST"]) ## "GET" by default
-def insert_university():
+def insert_uinversity():
     """
     Insert new university in the database
     """
@@ -567,70 +628,6 @@ def insert_university():
 
     ## else, response for GET request
     return render_template("insert_university.html", pageTitle = "Insert University", form = form)
-
-
-@app.route("/research_center")
-def get_research_center():
-    """
-    Retrieve programs from database
-    """
-    try:
-        form = research_center_form()
-        cur = db.connection.cursor()
-        cur.execute("SELECT * FROM research_center")
-        column_names = [i[0] for i in cur.description]
-        org = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
-        cur.close()
-        return render_template("research_center.html", org = org, pageTitle = "Universities", form = form)
-    except Exception as e:
-        ## if the connection to the database fails, return HTTP response 500
-        flash(str(e), "danger")
-        abort(500)
-
-@app.route("/research_center/update/<int:research_centerID>", methods = ["POST"])
-def update_research_center(research_centerID):
-    """
-    Update a program in the database, by id
-    """
-    form = research_center_form()
-    updateData = form.__dict__
-    if(form.validate_on_submit()):
-        query = "UPDATE research_center SET budget_from_minedu = '{}', budget_from_private_acts = '{}' WHERE organization_id = {};".format(updateData['budget_from_minedu'].data, updateData['budget_from_private_acts'].data, research_centerID)
-        if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
-            return redirect(url_for("get_research_center"))
-        try:
-            cur = db.connection.cursor()
-            cur.execute(query)
-            db.connection.commit()
-            cur.close()
-            flash("Research Center updated successfully", "success")
-        except Exception as e:
-            flash(str(e), "danger")
-    else:
-        for category in form.errors.values():
-            for error in category:
-                flash(error, "danger")
-    return redirect(url_for("get_research_center"))
-
-@app.route("/research_center/delete/<int:research_centerID>", methods = ["POST"])
-def delete_research_center(research_centerID):
-    """
-    Delete program by id from database
-    """
-    query = f"DELETE FROM research_center WHERE organization_id = {research_centerID};"
-    if (is_admin==False):
-        flash("You are not permitted to do changes", "danger")
-        return redirect(url_for("get_research_center"))
-    try:
-        cur = db.connection.cursor()
-        cur.execute(query)
-        db.connection.commit()
-        cur.close()
-        flash("Research Center deleted successfully", "primary")
-    except Exception as e:
-        flash(str(e), "danger")
-    return redirect(url_for("get_research_center"))
 
 @app.route("/research_center/insert", methods = ["GET", "POST"]) ## "GET" by default
 def insert_research_center():
@@ -658,69 +655,6 @@ def insert_research_center():
 
     ## else, response for GET request
     return render_template("insert_research_center.html", pageTitle = "Insert Research Center", form = form)
-
-@app.route("/company")
-def get_company():
-    """
-    Retrieve programs from database
-    """
-    try:
-        form = company_form()
-        cur = db.connection.cursor()
-        cur.execute("SELECT * FROM company")
-        column_names = [i[0] for i in cur.description]
-        org = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
-        cur.close()
-        return render_template("company.html", org = org, pageTitle = "Company", form = form)
-    except Exception as e:
-        ## if the connection to the database fails, return HTTP response 500
-        flash(str(e), "danger")
-        abort(500)
-
-@app.route("/company/update/<int:companyID>", methods = ["POST"])
-def update_company(companyID):
-    """
-    Update a program in the database, by id
-    """
-    form = company_form()
-    updateData = form.__dict__
-    if(form.validate_on_submit()):
-        query = "UPDATE company SET equity = '{}' WHERE organization_id = {};".format(updateData['equity'].data, companyID)
-        if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
-            return redirect(url_for("get_company"))
-        try:
-            cur = db.connection.cursor()
-            cur.execute(query)
-            db.connection.commit()
-            cur.close()
-            flash("Company updated successfully", "success")
-        except Exception as e:
-            flash(str(e), "danger")
-    else:
-        for category in form.errors.values():
-            for error in category:
-                flash(error, "danger")
-    return redirect(url_for("get_company"))
-
-@app.route("/company/delete/<int:companyID>", methods = ["POST"])
-def delete_company(companyID):
-    """
-    Delete program by id from database
-    """
-    query = f"DELETE FROM company WHERE organization_id = {companyID};"
-    if (is_admin==False):
-        flash("You are not permitted to do changes", "danger")
-        return redirect(url_for("get_company"))
-    try:
-        cur = db.connection.cursor()
-        cur.execute(query)
-        db.connection.commit()
-        cur.close()
-        flash("Company deleted successfully", "primary")
-    except Exception as e:
-        flash(str(e), "danger")
-    return redirect(url_for("get_company"))
 
 @app.route("/company/insert", methods = ["GET", "POST"]) ## "GET" by default
 def insert_company():
@@ -852,38 +786,3 @@ def insert_works_on():
 
     ## else, response for GET request
     return render_template("insert_works_on.html", pageTitle = "Insert new project for a researcher", form = form)
-
-
-@app.route("/focuses_on")
-def get_focuses_on():
-    """
-    Retrieve projects from database
-    """
-    try:
-        cur = db.connection.cursor()
-        cur.execute("SELECT * from focuses_on")
-        column_names = [i[0] for i in cur.description]
-        project_and_sf = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
-        cur.close()
-        return render_template("focuses_on.html", project_and_sf = project_and_sf, pageTitle = "Projects and Scientific Fields")
-    except Exception as e:
-        ## if the connection to the database fails, return HTTP response 500
-        flash(str(e), "danger")
-        abort(500)
-
-@app.route("/p_per_org")
-def get_p_per_org():
-    """
-    Retrieve projects from database
-    """
-    try:
-        cur = db.connection.cursor()
-        cur.execute("SELECT * from p_per_org")
-        column_names = [i[0] for i in cur.description]
-        p_per_org = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
-        cur.close()
-        return render_template("p_per_org.html", p_per_org = p_per_org, pageTitle = "Number Of phones per Organization")
-    except Exception as e:
-        ## if the connection to the database fails, return HTTP response 500
-        flash(str(e), "danger")
-        abort(500)

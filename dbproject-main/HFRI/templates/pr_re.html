@@ -6,24 +6,24 @@
         <div class="col-md-12">
             <div class="card" id="card-container">
                 <div class="card-body" id="card">
-                {% if works_on|length == 0 %}
-                    <h1 style="margin-top: 5rem;">No researchers and projects found!</h1>
+                {% if pr_re|length == 0 %}
+                    <h1 style="margin-top: 5rem;">No number of projects per researcher found!</h1>
                 {% else %}
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Project ID</th>
-                                    <th>Researcher ID</th>
-                                    <th>Last Update</th>
+                                    <th>Last name</th>
+                                    <th>First name</th>
+                                    <th>Number of projects</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for works_on in works_on %}
+                                {% for pr_re in pr_re %}
                                     <tr>
-                                        <td> {{ works_on.project_id }} </td>
-                                        <td> {{ works_on.researcher_id }} </td>
-                                        <td> {{ works_on.last_update }} </td>
+                                        <td> {{ pr_re.last_name }} </td>
+                                        <td> {{ pr_re.first_name }} </td>
+                                        <td> {{ pr_re.num_of_proj }} </td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

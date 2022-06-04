@@ -54,16 +54,7 @@
                                             data-id = "{{projects.project_id}}"
                                             data-title="{{projects.title}}"
                                             data-summary= "{{projects.summary}}"
-                                            data-funds="{{projects.funds}}"
-                                            data-start_date="{{projects.start_date}}"
                                             data-end_date="{{projects.end_date}}"
-                                            data-grade="{{projects.grade}}"
-                                            data-evaluation_date="{{projects.evaluation_date}}"
-                                            data-program_id="{{projects.program_id}}"
-                                            data-evaluator_id="{{projects.evaluator_id}}"
-                                            data-supervisor_id="{{projects.supervisor_id}}"
-                                            data-executive_id="{{projects.executive_id}}"
-                                            data-organization_id="{{projects.organization_id}}"
                                             data-last_update="{{projects.last_update}}"
                                             data-bs-toggle = "modal"
                                             data-bs-target="#editModal">
@@ -109,17 +100,7 @@
                         <!-- Setting required to false disables the HTML attribute and leaves input validation to the backend -->
                         {{ form.title(id = "title", required = False) }}
                         {{ form.summary(id = "summary", required = False) }}
-                        {{ form.funds(id = "funds", required = False) }}
-                        {{ form.start_date(id = "start_date", required = False) }}
                         {{ form.end_date(id = "end_date", required = False) }}
-                        {{ form.grade(id = "grade", required = False) }}
-                        {{ form.evaluation_date(id = "evaluation_date", required = False) }}
-                        {{ form.program_id(id = "program_id", required = False) }}
-                        {{ form.evaluator_id(id = "evaluator_id", required = False) }}
-                        {{ form.supervisor_id(id = "supervisor_id", required = False) }}
-                        {{ form.executive_id(id = "executive_id", required = False) }}
-                        {{ form.organization_id(id = "organization_id", required = False) }}
-
                     </div>
                     <div>
                         {% if form.title.errors %}
@@ -136,72 +117,9 @@
                             {% endfor %}
                         </ul>
                         {% endif %}
-                        {% if form.funds.errors %}
-                        <ul class = "errors">
-                            {% for error in form.funds.errors %}
-                            <li class = "alert text-danger">{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
-                        {% if form.start_date.errors %}
-                        <ul class = "errors">
-                            {% for error in form.start_date.errors %}
-                            <li class = "alert text-danger">{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
                         {% if form.end_date.errors %}
                         <ul class = "errors">
                             {% for error in form.end_date.errors %}
-                            <li class = "alert text-danger">{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
-                        {% if form.grade.errors %}
-                        <ul class = "errors">
-                            {% for error in form.grade.errors %}
-                            <li class = "alert text-danger">{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
-                        {% if form.evaluation_date.errors %}
-                        <ul class = "errors">
-                            {% for error in form.evaluation_date.errors %}
-                            <li class = "alert text-danger">{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
-                        {% if form.program_id.errors %}
-                        <ul class = "errors">
-                            {% for error in form.program_id.errors %}
-                            <li class = "alert text-danger">{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
-                        {% if form.evaluator_id.errors %}
-                        <ul class = "errors">
-                            {% for error in form.evaluator_id.errors %}
-                            <li class = "alert text-danger">{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
-                        {% if form.supervisor_id.errors %}
-                        <ul class = "errors">
-                            {% for error in form.supervisor_id.errors %}
-                            <li class = "alert text-danger">{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
-                        {% if form.executive_id.errors %}
-                        <ul class = "errors">
-                            {% for error in form.executive_id.errors %}
-                            <li class = "alert text-danger">{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
-                        {% if form.organization_id.errors %}
-                        <ul class = "errors">
-                            {% for error in form.organization_id.errors %}
                             <li class = "alert text-danger">{{ error }}</li>
                             {% endfor %}
                         </ul>
@@ -248,16 +166,7 @@
     function setModalFields(row) {
         document.getElementById("title").value = row.getAttribute("data-title");
         document.getElementById("summary").value = row.getAttribute("data-summary");
-        document.getElementById("funds").value = row.getAttribute("data-funds");
-        document.getElementById("start_date").value = row.getAttribute("data-start_date");
         document.getElementById("end_date").value = row.getAttribute("data-end_date");
-        document.getElementById("grade").value = row.getAttribute("data-grade");
-        document.getElementById("evaluation_date").value = row.getAttribute("data-evaluation_date");
-        document.getElementById("program_id").value = row.getAttribute("data-program_id");
-        document.getElementById("evaluator_id").value = row.getAttribute("data-evaluator_id");
-        document.getElementById("supervisor_id").value = row.getAttribute("data-supervisor_id");
-        document.getElementById("executive_id").value = row.getAttribute("data-executive_id");
-        document.getElementById("organization_id").value = row.getAttribute("data-organization_id");
         document.getElementById("modal-form").action = "/project/update/" + row.getAttribute("data-id");
         document.getElementById("modal-form").method = "POST";
         // document.getElementById("submit").addEventListener("click", (e) => {e.preventDefault();});

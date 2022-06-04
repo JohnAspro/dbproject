@@ -92,7 +92,7 @@ class executive_form(FlaskForm):
 
 class university_form(FlaskForm):
 
-    organization_id = StringField(label = "Organization ID")
+    organization_id = StringField(label = "Organization ID", validators = [DataRequired(message = "Organization ID is a required field.")])
 
     budget_from_minedu = StringField(label = "Budget from minedu", validators = [DataRequired(message = "Budget from minedu is a required field.")])
 
@@ -100,7 +100,7 @@ class university_form(FlaskForm):
 
 class research_center_form(FlaskForm):
 
-    organization_id = StringField(label = "Organization ID")
+    organization_id = StringField(label = "Organization ID", validators = [DataRequired(message = "Organization ID is a required field.")])
 
     budget_from_minedu = StringField(label = "Budget from minedu", validators = [DataRequired(message = "Budget from minedu is a required field.")])
 
@@ -110,7 +110,7 @@ class research_center_form(FlaskForm):
 
 class company_form(FlaskForm):
 
-    organization_id = StringField(label = "Organization ID")
+    organization_id = StringField(label = "Organization ID", validators = [DataRequired(message = "Organization ID is a required field.")])
 
     equity = StringField(label = "Equity", validators = [DataRequired(message = "Equity is a required field.")])
 
@@ -127,22 +127,5 @@ class phone_number_form(FlaskForm):
 class scientific_field_form(FlaskForm):
 
     scientific_field_name = StringField(label = "Name", validators = [DataRequired(message = "Name is a required field.")])
-
-    submit = SubmitField("Create")
-
-class focuses_on_form(FlaskForm):
-
-    project_id = StringField(label = "Project ID", validators = [DataRequired(message = "Project ID is a required field.")])
-
-    scientific_field_name = StringField(label = "Scientific field", validators = [DataRequired(message = "Scientific field is a required field.")])
-
-    submit = SubmitField("Create")
-
-
-class works_on_form(FlaskForm):
-
-    project_id = StringField(label = "Project ID", validators = [DataRequired(message = "Project ID is a required field.")])
-
-    researcher_id = StringField(label = "Scientific field", validators = [DataRequired(message = "Researcher ID is a required field.")])
 
     submit = SubmitField("Create")
