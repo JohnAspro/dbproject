@@ -129,3 +129,19 @@ class scientific_field_form(FlaskForm):
     scientific_field_name = StringField(label = "Name", validators = [DataRequired(message = "Name is a required field.")])
 
     submit = SubmitField("Create")
+
+class works_on_form(FlaskForm):
+
+    project_id = StringField(label = "Project ID", validators = [DataRequired(message = "Project ID is a required field.")])
+
+    researcher_id = StringField(label = "Researcher ID", validators = [DataRequired(message = "Researcher ID is a required field.")])
+
+    submit = SubmitField("Create")
+
+class focuses_on_form(FlaskForm):
+
+    project_id = StringField(label = "Project ID", validators = [DataRequired(message = "Project ID is a required field.")])
+
+    scientific_field_name = StringField(label = "Scientific field", validators = [DataRequired(message = "Scientific field is a required field.")])
+
+    submit = SubmitField("Create")

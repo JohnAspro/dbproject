@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, abort, request
 from flask_mysqldb import MySQL
-from HFRI import app, db ## initially created by __init__.py, need to be used here
-from HFRI.forms import organization_form, researcher_form, project_form, program_form, deliverable_form, executive_form, university_form, research_center_form, company_form, phone_number_form, scientific_field_form
+from HFRI import app, db
+from HFRI.forms import organization_form, researcher_form, project_form, program_form, deliverable_form, executive_form, university_form, research_center_form, company_form, phone_number_form, scientific_field_form, works_on_form, focuses_on_form
 
 global is_admin
 is_admin=False
+
+# home page
 
 @app.route("/")
 def index():
@@ -23,15 +25,19 @@ def login():
             return redirect(url_for("index"))
         else:
             is_admin=True
-            flash("Logged in", "success")
+            flash("Logged in!", "success")
             return redirect(url_for("index"))
 
 @app.route("/logout", methods=['GET', 'POST'])
 def logout():
     global is_admin
-    is_admin=False
-    flash("Logged out", "success")
-    return redirect(url_for("index"))
+    if is_admin==False:
+        flash("You are not logged in", "warning")
+        return redirect(url_for("index"))
+    else:
+        is_admin=False
+        flash("Logged out!", "success")
+        return redirect(url_for("index"))
 
 @app.route("/show_tables")
 def get_tables():
@@ -44,14 +50,81 @@ def get_tables():
         column_names = [i[0] for i in cur.description]
         tables = [dict(zip(column_names, entry)) for entry in cur.fetchall() if entry[0]!="p_sf" and entry[0]!="y_o"]
         cur.close()
-        names = ["Companies", "Deliverables", "Executives", "Projects and Scientific Fields", "Organizations",
-        "Phones per organization", "Phone numbers", "Number of projects per researcher", "Programs", "Projects", "Research Centers",
+        names = ["Companies", "Deliverables", "Executives", "Projects and Scientific fields", "Organizations",
+        "Number of phones per organization", "Phone numbers", "Number of projects per researcher", "Programs", "Projects", "Research centers",
         "Researchers", "Scientific fields", "Universities", "Researchers and projects"]
         return render_template("show_tables.html", names=names, tables=tables, pageTitle = "Data")
     except Exception as e:
         ## if the connection to the database fails, return HTTP response 500
         flash(str(e), "danger")
         abort(500)
+
+# queries
+
+@app.route("/queries", methods=['GET', 'POST'])
+def get_query():
+    try:
+        cur = db.connection.cursor()
+        cur.execute("SELECT r.first_name, r.last_name, count(*) num_of_proj from researcher r INNER JOIN works_on wo ON wo.researcher_id = r.researcher_id where wo.project_id IN (select p.project_id from project p WHERE  p.project_id NOT IN (select d.project_id from deliverable d)) GROUP BY r.last_name, r.first_name HAVING num_of_proj > 4")
+        column_names = [i[0] for i in cur.description]
+        q1 = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
+        cur.close()
+        cur = db.connection.cursor()
+        cur.execute("SELECT ex.executive_name, o.organization_name, SUM(p.funds) money from executive ex INNER join project p ON (ex.executive_id = p.executive_id) INNER JOIN org o ON o.organization_id = p.organization_id GROUP BY ex.executive_name, o.organization_name ORDER BY money DESC LIMIT 5;")
+        column_names = [i[0] for i in cur.description]
+        q2 = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
+        cur.close()
+        cur = db.connection.cursor()
+        cur.execute("SELECT a.first_name, a.last_name, COUNT(b.project_id) num_of_proj FROM researcher a INNER JOIN works_on b ON (a.researcher_id = b.researcher_id) INNER JOIN project c ON (c.project_id = b.project_id) WHERE c.end_date > CURDATE() AND DATEDIFF(CURDATE(),a.date_of_birth) /365 < 40 GROUP BY a.researcher_id ORDER BY num_of_proj DESC;")
+        column_names = [i[0] for i in cur.description]
+        q3 = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
+        cur.close()
+        cur = db.connection.cursor()
+        cur.execute("SELECT count(psf.project_id) num , psf.scientific_field_name sf, psf2.scientific_field_name sf2 from p_sf psf INNER JOIN p_sf psf2 ON psf.project_id = psf2.project_id WHERE psf.scientific_field_name > psf2.scientific_field_name GROUP BY psf.scientific_field_name, psf2.scientific_field_name order by num desc LIMIT 3;")
+        column_names = [i[0] for i in cur.description]
+        q4 = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
+        cur.close()
+        cur = db.connection.cursor()
+        cur.execute("SELECT yo.organization_name from y_o yo INNER JOIN y_o yo2 ON (yo.organization_name = yo2.organization_name and ABS(yo.xronos - yo2.xronos) = 1 and yo.xronos > yo2.xronos);")
+        column_names = [i[0] for i in cur.description]
+        q5 = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
+        cur.close()
+
+        cur = db.connection.cursor()
+        cur.execute("SELECT scientific_field_name FROM scientific_field;")
+        column_names = [i[0] for i in cur.description]
+        scf = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
+        cur.close()
+
+        scf2 = request.form.get('sf')
+
+        cur = db.connection.cursor()
+        cur.execute("SELECT DISTINCT p.title from focuses_on fo INNER JOIN project p ON (p.project_id = fo.project_id) INNER JOIN works_on wo ON (wo.project_id = p.project_id) INNER JOIN researcher r ON (r.researcher_id = wo.researcher_id) WHERE p.end_date - CURDATE() > 0 and fo.scientific_field_name = '{}';".format(scf2))
+        column_names = [i[0] for i in cur.description]
+        q6 = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
+        cur.close()
+
+        cur = db.connection.cursor()
+        cur.execute("SELECT r.first_name, r.last_name from focuses_on fo INNER JOIN project p ON (p.project_id = fo.project_id) INNER JOIN works_on wo ON (wo.project_id = p.project_id) INNER JOIN researcher r ON (r.researcher_id = wo.researcher_id) WHERE p.end_date - CURDATE() > 0 and fo.scientific_field_name = '{}';".format(scf2))
+        column_names = [i[0] for i in cur.description]
+        q7 = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
+        cur.close()
+
+        cur = db.connection.cursor()
+        cur.execute("SELECT executive_name FROM executive")
+        column_names = [i[0] for i in cur.description]
+        ex = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
+        cur.close()
+
+        return render_template("queries.html",
+                               pageTitle = "FAQ", q1 = q1, q2 = q2, q3 = q3, q4 = q4, q5 = q5, scf = scf, q6 = q6, pr = scf2, q7 = q7,
+                               ex = ex)
+    except Exception as e:
+        ## if the connection to the database fails, return HTTP response 500
+        flash(str(e), "danger")
+        abort(500)
+
+# get, update, delete
 
 @app.route("/researcher")
 def get_researcher():
@@ -81,7 +154,7 @@ def update_researcher(researcherID):
     if(form.validate_on_submit()):
         query = "UPDATE researcher SET first_name = '{}', last_name = '{}', sex = '{}', date_of_birth = '{}', start_date = '{}', organization_id = '{}'  WHERE researcher_id = {};".format(updateData['first_name'].data, updateData['last_name'].data, updateData['sex'].data,  updateData['date_of_birth'].data,  updateData['start_date'].data, updateData['organization_id'].data,  researcherID)
         if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
+            flash("You are not permitted to make changes", "danger")
             return redirect(url_for("get_researcher"))
         try:
             cur = db.connection.cursor()
@@ -104,7 +177,7 @@ def delete_researcher(researcherID):
     """
     query = f"DELETE FROM researcher WHERE researcher_id = {researcherID};"
     if (is_admin==False):
-        flash("You are not permitted to do changes", "danger")
+        flash("You are not permitted to make changes", "danger")
         return redirect(url_for("get_researcher"))
     try:
         cur = db.connection.cursor()
@@ -136,7 +209,7 @@ def get_deliverable():
 @app.route("/org")
 def get_organization():
     """
-    Retrieve students from database
+    Retrieve organizations from database
     """
     try:
         form = organization_form()
@@ -159,9 +232,9 @@ def update_organization(orgID):
     form = organization_form()
     updateData = form.__dict__
     if(form.validate_on_submit()):
-        query = "UPDATE org SET abbreviation = '{}', name = '{}', street = '{}', street_number = '{}', postal_code = '{}', city = '{}'  WHERE organization_id = {};".format(updateData['abbreviation'].data, updateData['name'].data, updateData['street'].data,  updateData['street_number'].data,  updateData['postal_code'].data, updateData['city'].data,  orgID)
+        query = "UPDATE org SET abbreviation = '{}', organization_name = '{}', street = '{}', street_number = '{}', postal_code = '{}', city = '{}'  WHERE organization_id = {};".format(updateData['abbreviation'].data, updateData['organization_name'].data, updateData['street'].data,  updateData['street_number'].data,  updateData['postal_code'].data, updateData['city'].data,  orgID)
         if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
+            flash("You are not permitted to make changes", "danger")
             return redirect(url_for("get_organization"))
         try:
             cur = db.connection.cursor()
@@ -184,7 +257,7 @@ def delete_organization(orgID):
     """
     query = f"DELETE FROM org WHERE organization_id = {orgID};"
     if (is_admin==False):
-        flash("You are not permitted to do changes", "danger")
+        flash("You are not permitted to make changes", "danger")
         return redirect(url_for("get_organization"))
     try:
         cur = db.connection.cursor()
@@ -224,7 +297,7 @@ def update_project(projectID):
     if(form.validate_on_submit()):
         query = "UPDATE project SET title = '{}', summary = '{}', end_date = '{}' WHERE project_id = '{}';".format(updateData['title'].data, updateData['summary'].data, updateData['end_date'].data, projectID)
         if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
+            flash("You are not permitted to make changes", "danger")
             return redirect(url_for("get_project"))
         try:
             cur = db.connection.cursor()
@@ -247,7 +320,7 @@ def delete_project(projectID):
     """
     query = f"DELETE FROM project WHERE project_id = {projectID};"
     if (is_admin==False):
-        flash("You are not permitted to do changes", "danger")
+        flash("You are not permitted to make changes", "danger")
         return redirect(url_for("get_project"))
     try:
         cur = db.connection.cursor()
@@ -287,7 +360,7 @@ def update_program(programID):
     if(form.validate_on_submit()):
         query = "UPDATE program SET program_name = '{}', department = '{}' WHERE program_id = {};".format(updateData['program_name'].data, updateData['department'].data, programID)
         if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
+            flash("You are not permitted to make changes", "danger")
             return redirect(url_for("get_program"))
         try:
             cur = db.connection.cursor()
@@ -310,7 +383,7 @@ def delete_program(programID):
     """
     query = f"DELETE FROM program WHERE program_id = {programID};"
     if (is_admin==False):
-        flash("You are not permitted to do changes", "danger")
+        flash("You are not permitted to make changes", "danger")
         return redirect(url_for("get_program"))
     try:
         cur = db.connection.cursor()
@@ -347,7 +420,7 @@ def delete_executive(executiveID):
     """
     query = f"DELETE FROM executive WHERE executive_id = {executiveID};"
     if (is_admin==False):
-        flash("You are not permitted to do changes", "danger")
+        flash("You are not permitted to make changes", "danger")
         return redirect(url_for("get_executive"))
     try:
         cur = db.connection.cursor()
@@ -384,7 +457,7 @@ def delete_phone_number(phonenumber):
     """
     query = "DELETE FROM phone_number WHERE p_number = '{}';".format(phonenumber)
     if (is_admin==False):
-        flash("You are not permitted to do changes", "danger")
+        flash("You are not permitted to make changes", "danger")
         return redirect(url_for("get_phone_number"))
     try:
         cur = db.connection.cursor()
@@ -450,7 +523,7 @@ def get_scientific_field():
 @app.route("/focuses_on")
 def get_focuses_on():
     """
-    Retrieve projects from database
+    Retrieve scientific fields that a project focuses on from database
     """
     try:
         cur = db.connection.cursor()
@@ -458,7 +531,7 @@ def get_focuses_on():
         column_names = [i[0] for i in cur.description]
         project_and_sf = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
         cur.close()
-        return render_template("focuses_on.html", project_and_sf = project_and_sf, pageTitle = "Projects and Scientific Fields")
+        return render_template("focuses_on.html", project_and_sf = project_and_sf, pageTitle = "Projects and Scientific fields")
     except Exception as e:
         ## if the connection to the database fails, return HTTP response 500
         flash(str(e), "danger")
@@ -467,7 +540,7 @@ def get_focuses_on():
 @app.route("/p_per_org")
 def get_p_per_org():
     """
-    Retrieve projects from database
+    Retrieve number of phones per organization from database
     """
     try:
         cur = db.connection.cursor()
@@ -475,7 +548,7 @@ def get_p_per_org():
         column_names = [i[0] for i in cur.description]
         p_per_org = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
         cur.close()
-        return render_template("p_per_org.html", p_per_org = p_per_org, pageTitle = "Number Of phones per Organization")
+        return render_template("p_per_org.html", p_per_org = p_per_org, pageTitle = "Number of phones per organization")
     except Exception as e:
         ## if the connection to the database fails, return HTTP response 500
         flash(str(e), "danger")
@@ -484,7 +557,7 @@ def get_p_per_org():
 @app.route("/company")
 def get_company():
     """
-    Retrieve programs from database
+    Retrieve companies from database
     """
     try:
         form = company_form()
@@ -493,7 +566,7 @@ def get_company():
         column_names = [i[0] for i in cur.description]
         org = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
         cur.close()
-        return render_template("company.html", org = org, pageTitle = "Company", form = form)
+        return render_template("company.html", org = org, pageTitle = "Companies", form = form)
     except Exception as e:
         ## if the connection to the database fails, return HTTP response 500
         flash(str(e), "danger")
@@ -502,14 +575,14 @@ def get_company():
 @app.route("/company/update/<int:companyID>", methods = ["POST"])
 def update_company(companyID):
     """
-    Update a program in the database, by id
+    Update a company in the database, by id
     """
     form = company_form()
     updateData = form.__dict__
     if(form.validate_on_submit()):
         query = "UPDATE company SET equity = '{}' WHERE organization_id = {};".format(updateData['equity'].data, companyID)
         if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
+            flash("You are not permitted to make changes", "danger")
             return redirect(url_for("get_company"))
         try:
             cur = db.connection.cursor()
@@ -528,11 +601,11 @@ def update_company(companyID):
 @app.route("/company/delete/<int:companyID>", methods = ["POST"])
 def delete_company(companyID):
     """
-    Delete program by id from database
+    Delete company by id from database
     """
     query = f"DELETE FROM company WHERE organization_id = {companyID};"
     if (is_admin==False):
-        flash("You are not permitted to do changes", "danger")
+        flash("You are not permitted to make changes", "danger")
         return redirect(url_for("get_company"))
     try:
         cur = db.connection.cursor()
@@ -547,7 +620,7 @@ def delete_company(companyID):
 @app.route("/research_center")
 def get_research_center():
     """
-    Retrieve programs from database
+    Retrieve research_centers from database
     """
     try:
         form = research_center_form()
@@ -556,7 +629,7 @@ def get_research_center():
         column_names = [i[0] for i in cur.description]
         org = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
         cur.close()
-        return render_template("research_center.html", org = org, pageTitle = "Universities", form = form)
+        return render_template("research_center.html", org = org, pageTitle = "Research centers", form = form)
     except Exception as e:
         ## if the connection to the database fails, return HTTP response 500
         flash(str(e), "danger")
@@ -565,21 +638,21 @@ def get_research_center():
 @app.route("/research_center/update/<int:research_centerID>", methods = ["POST"])
 def update_research_center(research_centerID):
     """
-    Update a program in the database, by id
+    Update a research center in the database, by id
     """
     form = research_center_form()
     updateData = form.__dict__
     if(form.validate_on_submit()):
         query = "UPDATE research_center SET budget_from_minedu = '{}', budget_from_private_acts = '{}' WHERE organization_id = {};".format(updateData['budget_from_minedu'].data, updateData['budget_from_private_acts'].data, research_centerID)
         if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
+            flash("You are not permitted to make changes", "danger")
             return redirect(url_for("get_research_center"))
         try:
             cur = db.connection.cursor()
             cur.execute(query)
             db.connection.commit()
             cur.close()
-            flash("Research Center updated successfully", "success")
+            flash("Research center updated successfully", "success")
         except Exception as e:
             flash(str(e), "danger")
     else:
@@ -591,18 +664,18 @@ def update_research_center(research_centerID):
 @app.route("/research_center/delete/<int:research_centerID>", methods = ["POST"])
 def delete_research_center(research_centerID):
     """
-    Delete program by id from database
+    Delete a researcher by id from database
     """
     query = f"DELETE FROM research_center WHERE organization_id = {research_centerID};"
     if (is_admin==False):
-        flash("You are not permitted to do changes", "danger")
+        flash("You are not permitted to make changes", "danger")
         return redirect(url_for("get_research_center"))
     try:
         cur = db.connection.cursor()
         cur.execute(query)
         db.connection.commit()
         cur.close()
-        flash("Research Center deleted successfully", "primary")
+        flash("Research center deleted successfully", "primary")
     except Exception as e:
         flash(str(e), "danger")
     return redirect(url_for("get_research_center"))
@@ -610,7 +683,7 @@ def delete_research_center(research_centerID):
 @app.route("/university")
 def get_university():
     """
-    Retrieve programs from database
+    Retrieve universities from database
     """
     try:
         form = university_form()
@@ -628,14 +701,14 @@ def get_university():
 @app.route("/university/update/<int:universityID>", methods = ["POST"])
 def update_university(universityID):
     """
-    Update a program in the database, by id
+    Update a university in the database, by id
     """
     form = university_form()
     updateData = form.__dict__
     if(form.validate_on_submit()):
         query = "UPDATE university SET budget_from_minedu = '{}' WHERE organization_id = {};".format(updateData['budget_from_minedu'].data, universityID)
         if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
+            flash("You are not permitted to make changes", "danger")
             return redirect(url_for("get_university"))
         try:
             cur = db.connection.cursor()
@@ -654,23 +727,23 @@ def update_university(universityID):
 @app.route("/university/delete/<int:universityID>", methods = ["POST"])
 def delete_university(universityID):
     """
-    Delete program by id from database
+    Delete university by id from database
     """
     query = f"DELETE FROM university WHERE organization_id = {universityID};"
     if (is_admin==False):
-        flash("You are not permitted to do changes", "danger")
+        flash("You are not permitted to make changes", "danger")
         return redirect(url_for("get_university"))
     try:
         cur = db.connection.cursor()
         cur.execute(query)
         db.connection.commit()
         cur.close()
-        flash("Program deleted successfully", "primary")
+        flash("University deleted successfully", "primary")
     except Exception as e:
         flash(str(e), "danger")
     return redirect(url_for("get_university"))
 
-
+# insert
 
 @app.route("/researcher/insert", methods = ["GET", "POST"]) ## "GET" by default
 def insert_researcher():
@@ -684,7 +757,7 @@ def insert_researcher():
         query = "INSERT INTO researcher(first_name, last_name, sex, date_of_birth, start_date, organization_id) VALUES ('{}', '{}', '{}', '{} 00:00:00', '{} 00:00:00', '{}');".format(newresearcher['first_name'].data, newresearcher['last_name'].data, newresearcher['sex'].data, newresearcher['date_of_birth'].data,
         newresearcher['start_date'].data, newresearcher['organization_id'].data)
         if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
+            flash("You are not permitted to make changes", "danger")
             return redirect(url_for("show_tables"))
         try:
             cur = db.connection.cursor()
@@ -709,7 +782,7 @@ def insert_program():
         newprogram = form.__dict__
         query = "INSERT INTO program(program_name, department) VALUES ('{}', '{}');".format(newprogram['program_name'].data, newprogram['department'].data)
         if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
+            flash("You are not permitted to make changes", "danger")
             return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
@@ -735,7 +808,7 @@ def insert_project():
         newproject = form.__dict__
         query = "INSERT INTO project(title, summary, funds, start_date, end_date, grade, evaluation_date, program_id, evaluator_id, supervisor_id, executive_id, organization_id) VALUES ('{}', '{}', '{}', '{} 00:00:00', '{} 00:00:00', '{}', '{} 00:00:00', '{}', '{}', '{}', '{}', '{}');".format(newproject['title'].data, newproject['summary'].data, newproject['funds'].data,  newproject['start_date'].data,  newproject['end_date'].data, newproject['grade'].data, newproject['evaluation_date'].data, newproject['program_id'].data, newproject['evaluator_id'].data, newproject['supervisor_id'].data, newproject['executive_id'].data, newproject['organization_id'].data)
         if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
+            flash("You are not permitted to make changes", "danger")
             return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
@@ -761,7 +834,7 @@ def insert_organization():
         neworg = form.__dict__
         query = "INSERT INTO org(abbreviation, organization_name, street, street_number, postal_code, city) VALUES ('{}', '{}', '{}', '{}', '{}', '{}');".format(neworg['abbreviation'].data, neworg['organization_name'].data, neworg['street'].data,  neworg['street_number'].data,  neworg['postal_code'].data, neworg['city'].data)
         if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
+            flash("You are not permitted to make changes", "danger")
             return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
@@ -787,7 +860,7 @@ def insert_deliverable():
         newdeliverable = form.__dict__
         query = "INSERT INTO deliverable(title, summary, due_date, project_id) VALUES ('{}', '{}', '{} 00:00:00', '{}');".format(newdeliverable['title'].data, newdeliverable['summary'].data, newdeliverable['due_date'].data,  newdeliverable['project_id'].data)
         if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
+            flash("You are not permitted to make changes", "danger")
             return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
@@ -813,7 +886,7 @@ def insert_executive():
         newexecutive = form.__dict__
         query = "INSERT INTO executive(executive_name) VALUES ('{}');".format(newexecutive['executive_name'].data)
         if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
+            flash("You are not permitted to make changes", "danger")
             return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
@@ -839,7 +912,7 @@ def insert_uinversity():
         newuniversity = form.__dict__
         query = "INSERT INTO university(organization_id, budget_from_minedu) VALUES ('{}', '{}');".format(newuniversity['organization_id'].data, newuniversity['budget_from_minedu'].data)
         if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
+            flash("You are not permitted to make changes", "danger")
             return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
@@ -866,7 +939,7 @@ def insert_research_center():
         query = "INSERT INTO research_center(organization_id, budget_from_minedu, budget_from_private_acts) VALUES ('{}', '{}', '{}');".format(newresearch_center['organization_id'].data,
         newresearch_center['budget_from_minedu'].data, newresearch_center['budget_from_private_acts'].data)
         if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
+            flash("You are not permitted to make changes", "danger")
             return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
@@ -892,7 +965,7 @@ def insert_company():
         newcompany = form.__dict__
         query = "INSERT INTO company(organization_id, equity) VALUES ('{}', '{}');".format(newcompany['organization_id'].data, newcompany['equity'].data)
         if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
+            flash("You are not permitted to make changes", "danger")
             return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
@@ -918,7 +991,7 @@ def insert_phone_number():
         newphone_number = form.__dict__
         query = "INSERT INTO phone_number(organization_id, p_number) VALUES ('{}', '{}');".format(newphone_number['organization_id'].data, newphone_number['p_number'].data)
         if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
+            flash("You are not permitted to make changes", "danger")
             return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
@@ -944,7 +1017,7 @@ def insert_scientific_field():
         newscientific_field = form.__dict__
         query = "INSERT INTO scientific_field(scientific_field_name) VALUES ('{}', '{}');".format(newscientific_field['scientific_field_name'].data)
         if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
+            flash("You are not permitted to make changes", "danger")
             return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
@@ -968,9 +1041,9 @@ def insert_focuses_on():
     ## when the form is submitted
     if(request.method == "POST" and form.validate_on_submit()):
         newfocuses_on = form.__dict__
-        query = "INSERT INTO focuses_on(project_id, scientific_field_name) VALUES ('{}', '{}');".format(newphone_number['project_id'].data, newphone_number['scientific_field_name'].data)
+        query = "INSERT INTO focuses_on(project_id, scientific_field_name) VALUES ('{}', '{}');".format(newfocuses_on['project_id'].data, newfocuses_on['scientific_field_name'].data)
         if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
+            flash("You are not permitted to make changes", "danger")
             return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
@@ -995,9 +1068,9 @@ def insert_works_on():
     ## when the form is submitted
     if(request.method == "POST" and form.validate_on_submit()):
         newworks_on = form.__dict__
-        query = "INSERT INTO works_on(project_id, researcher_id) VALUES ('{}', '{}');".format(newphone_number['project_id'].data, newphone_number['researcher_id'].data)
+        query = "INSERT INTO works_on(project_id, researcher_id) VALUES ('{}', '{}');".format(newworks_on['project_id'].data, newworks_on['researcher_id'].data)
         if (is_admin==False):
-            flash("You are not permitted to do changes", "danger")
+            flash("You are not permitted to make changes", "danger")
             return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
