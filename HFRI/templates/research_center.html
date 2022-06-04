@@ -7,16 +7,17 @@
             <div class="card" id="card-container">
                 <div class="card-body" id="card">
                 {% if org|length == 0 %}
-                    <h1 style="margin-top: 5rem;">No Companies found!</h1>
+                    <h1 style="margin-top: 5rem;">No Research Center found!</h1>
                 {% else %}
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
                                 <tr>
                                     <th>Organization ID</th>
-                                    <th>Equity</th>
+                                    <th>Budget From MINEDU</th>
+                                    <th>Budget From private acts</th>
                                     <th>Last Update</th>
-                                    <th>Modify</th>
+                                    <th>Modify</th>                                    
                                     <th>Delete</th>
                                 </tr>
                             </thead>
@@ -24,13 +25,15 @@
                                 {% for org in org %}
                                     <tr>
                                         <td> {{ org.organization_id }} </td>
-                                        <td> {{ org.equity }} </td>
+                                        <td> {{ org.budget_from_minedu }} </td>
+                                        <td> {{ org.budget_from_private_acts }} </td>
                                         <td> {{ org.last_update }} </td>
                                         <td>
                                             <a type="button" onclick="setModalFields(this)"
                                             data-toggle="modal"
                                             data-org_id = "{{ org.organization_id }}"
-                                            data-org_budget="{{org.equity}}"
+                                            data-org_budget="{{org.budget_from_minedu}}"
+                                            data-org_priv_budget="{{org.budget_from_private_acts}}"
                                             data-bs-toggle = "modal"
                                             data-bs-target="#editModal">
                                                 <i class="fa fa-edit"></i>
@@ -67,19 +70,27 @@
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Edit Company</h4>
+                <h4 class="modal-title">Edit Research Center</h4>
             </div>
             <div class="modal-body">
                 <form id="modal-form">
                     {{ form.hidden_tag() }}
                     <div style="text-align: center;">
                         <!-- Setting required to false disables the HTML attribute and leaves input validation to the backend -->
-                        {{ form.equity(id = "equity", required = False) }}
+                        {{ form.budget_from_minedu(id = "budet_from_minedu", required = False) }}
+                        {{ form.budget_from_private_acts(id = "budet_from_private_acts", required = False) }}
                     </div>
                     <div>
-                        {% if form.equity.errors %}
+                        {% if form.budget_from_minedu.errors %}
                         <ul class = "errors">
-                            {% for error in form.equity.errors %}
+                            {% for error in form.budget_from_minedu.errors %}
+                            <li class = "alert text-danger">{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {% if form.budget_from_private_acts.errors %}
+                        <ul class = "errors">
+                            {% for error in form.budget_from_private_acts.errors %}
                             <li class = "alert text-danger">{{ error }}</li>
                             {% endfor %}
                         </ul>
@@ -102,7 +113,7 @@
     <div class = "modal-dialog">
         <div class = "modal-content">
             <div class = "modal-header">
-                <h5 class = "modal-title" id = "deleteModalLabel">Delete Company</h5>
+                <h5 class = "modal-title" id = "deleteModalLabel">Delete Research Center</h5>
                 <button type = "button" class = "btn-close" data-bs-dismiss = "modal" aria-label = "Close"></button>
             </div>
             <div class = "modal-body">
@@ -124,8 +135,9 @@
 
 <script>
     function setModalFields(row) {
-        document.getElementById("equity").value = row.getAttribute("data-org_budget");
-        document.getElementById("modal-form").action = "/company/update/" + row.getAttribute("data-org_id");
+        document.getElementById("budet_from_minedu").value = row.getAttribute("data-org_budget");
+        document.getElementById("budet_from_private_acts").value = row.getAttribute("data-org_priv_budget");
+        document.getElementById("modal-form").action = "/research_center/update/" + row.getAttribute("data-org_id");
         document.getElementById("modal-form").method = "POST";
         // document.getElementById("submit").addEventListener("click", (e) => {e.preventDefault();});
         // commented line above would prevent the default behavior of the submit button, that is, sending the
@@ -133,10 +145,9 @@
     }
 
     function setDeleteModalFields(row) {
-        document.getElementById("delete-modal-form").action = "/company/delete/" + row.getAttribute("data-org_id");
+        document.getElementById("delete-modal-form").action = "/research_center/delete/" + row.getAttribute("data-org_id");
         document.getElementById("delete-modal-form").method = "POST";
     }
 </script>
 
 {% endblock content %}
-

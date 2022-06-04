@@ -92,7 +92,7 @@ class executive_form(FlaskForm):
 
 class university_form(FlaskForm):
 
-    organization_id = StringField(label = "Organization ID", validators = [DataRequired(message = "Organization ID is a required field.")])
+    organization_id = StringField(label = "Organization ID")
 
     budget_from_minedu = StringField(label = "Budget from minedu", validators = [DataRequired(message = "Budget from minedu is a required field.")])
 
@@ -100,7 +100,7 @@ class university_form(FlaskForm):
 
 class research_center_form(FlaskForm):
 
-    organization_id = StringField(label = "Organization ID", validators = [DataRequired(message = "Organization ID is a required field.")])
+    organization_id = StringField(label = "Organization ID")
 
     budget_from_minedu = StringField(label = "Budget from minedu", validators = [DataRequired(message = "Budget from minedu is a required field.")])
 
@@ -110,7 +110,7 @@ class research_center_form(FlaskForm):
 
 class company_form(FlaskForm):
 
-    organization_id = StringField(label = "Organization ID", validators = [DataRequired(message = "Organization ID is a required field.")])
+    organization_id = StringField(label = "Organization ID")
 
     equity = StringField(label = "Equity", validators = [DataRequired(message = "Equity is a required field.")])
 
