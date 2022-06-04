@@ -1,0 +1,83 @@
+{% extends "global_layout.html" %}
+{% block content %}
+<div class="container">
+    {% include "flash_messages.html" %}
+    <div class="row" id="row">
+        <div class="col-md-12">
+            <div class="card" id="card-container">
+                <div class="card-body" id="card">
+                {% if executives|length == 0 %}
+                    <h1 style="margin-top: 5rem;">No Executives found!</h1>
+                {% else %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Last Update</th>
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for executive in executives %}
+                                    <tr>
+                                        <td> {{ executive.executive_id }} </td>
+                                        <td> {{ executive.executive_name }} </td>
+                                        <td> {{ executive.last_update }} </td>
+                                        <td>
+                                            <button
+                                            style = "all: unset; cursor: pointer;"
+                                            type = "button"
+                                            data-bs-toggle = "modal"
+                                            data-bs-target = "#deleteModal"
+                                            data-executive_id = "{{ executive.executive_id }}"
+                                            onclick = "setDeleteModalFields(this)">
+                                                <i class = "fa fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete modal -->
+<div class = "modal fade" id="deleteModal">
+    <div class = "modal-dialog">
+        <div class = "modal-content">
+            <div class = "modal-header">
+                <h5 class = "modal-title" id = "deleteModalLabel">Delete Executive</h5>
+                <button type = "button" class = "btn-close" data-bs-dismiss = "modal" aria-label = "Close"></button>
+            </div>
+            <div class = "modal-body">
+                All associated entities will be deleted too. Are you sure?
+            </div>
+            <div class = "modal-footer">
+                <button type = "button" class = "btn btn-secondary" data-bs-dismiss = "modal">Close</button>
+                <form id = "delete-modal-form">
+                    <input type = "submit" class = "btn btn-danger" value = "Delete">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+</script>
+
+<script>
+    function setDeleteModalFields(row) {
+        document.getElementById("delete-modal-form").action = "/executive/delete/" + row.getAttribute("data-executive_id");
+        document.getElementById("delete-modal-form").method = "POST";
+    }
+</script>
+
+{% endblock content %}

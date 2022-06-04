@@ -48,7 +48,7 @@ create table company (
 -- phone_number(organization_id, p_number, last_update)
 create table phone_number (
 	organization_id int unsigned not null,
-	p_number varchar(20) not null,
+	p_number int unsigned not null,
   last_update timestamp not null default current_timestamp on update current_timestamp,
   primary key (p_number),
   constraint fk_phone_organization_id foreign key (organization_id) references org (organization_id) on delete cascade on update cascade
@@ -153,7 +153,7 @@ create table works_on (
 
 -- number of projects per researcher
 CREATE VIEW pr_re AS
-(SELECT r.last_name, r.first_name, count(p.title) num_of_proj from project p
+(SELECT r.last_name last_name, r.first_name first_name, count(p.title) num_of_proj from project p
 INNER JOIN works_on wo
 ON (p.project_id = wo.project_id)
 INNER JOIN researcher r
@@ -163,7 +163,7 @@ GROUP BY r.researcher_id
 
 -- number of phone numbers per organization
 CREATE VIEW p_per_org AS
-(SELECT  o.organization_name, count(*) num_of_phones  from phone_number pn
+(SELECT  o.organization_name organization_name, count(*) num_of_phones from phone_number pn
 INNER JOIN org o
 ON (pn.organization_id = o.organization_id)
 GROUP BY o.organization_name);
