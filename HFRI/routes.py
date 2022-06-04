@@ -3,6 +3,9 @@ from flask_mysqldb import MySQL
 from HFRI import app, db ## initially created by __init__.py, need to be used here
 from HFRI.forms import organization_form, researcher_form, project_form, program_form, deliverable_form, executive_form, university_form, research_center_form, company_form, phone_number_form, scientific_field_form, focuses_on_form, works_on_form
 
+global is_admin
+is_admin=False
+
 @app.route("/")
 def index():
     try:
@@ -10,6 +13,25 @@ def index():
     except Exception as e:
         print(e)
         return render_template("landing.html", pageTitle = "Welcome!")
+
+@app.route("/login", methods=['GET', 'POST'])
+def login():
+    global is_admin
+    if request.method == 'POST':
+        if request.form['username'] != 'angelos_HFRI' or request.form['password'] != '123':
+            flash("Invalid password", "danger")
+            return redirect(url_for("index"))
+        else:
+            is_admin=True
+            flash("Logged in", "success")
+            return redirect(url_for("index"))
+
+@app.route("/logout", methods=['GET', 'POST'])
+def logout():
+    global is_admin
+    is_admin=False
+    flash("Logged out", "success")
+    return redirect(url_for("index"))
 
 @app.route("/show_tables")
 def get_tables():
@@ -58,6 +80,9 @@ def update_researcher(researcherID):
     updateData = form.__dict__
     if(form.validate_on_submit()):
         query = "UPDATE researcher SET first_name = '{}', last_name = '{}', sex = '{}', date_of_birth = '{}', start_date = '{}', organization_id = '{}'  WHERE researcher_id = {};".format(updateData['first_name'].data, updateData['last_name'].data, updateData['sex'].data,  updateData['date_of_birth'].data,  updateData['start_date'].data, updateData['organization_id'].data,  researcherID)
+        if (is_admin==False):
+            flash("You are not permitted to do changes", "danger")
+            return redirect(url_for("get_researcher"))
         try:
             cur = db.connection.cursor()
             cur.execute(query)
@@ -78,6 +103,9 @@ def delete_researcher(researcherID):
     Delete researcher by id from database
     """
     query = f"DELETE FROM researcher WHERE researcher_id = {researcherID};"
+    if (is_admin==False):
+        flash("You are not permitted to do changes", "danger")
+        return redirect(url_for("get_researcher"))
     try:
         cur = db.connection.cursor()
         cur.execute(query)
@@ -132,6 +160,9 @@ def update_organization(orgID):
     updateData = form.__dict__
     if(form.validate_on_submit()):
         query = "UPDATE org SET abbreviation = '{}', name = '{}', street = '{}', street_number = '{}', postal_code = '{}', city = '{}'  WHERE organization_id = {};".format(updateData['abbreviation'].data, updateData['name'].data, updateData['street'].data,  updateData['street_number'].data,  updateData['postal_code'].data, updateData['city'].data,  orgID)
+        if (is_admin==False):
+            flash("You are not permitted to do changes", "danger")
+            return redirect(url_for("get_organization"))
         try:
             cur = db.connection.cursor()
             cur.execute(query)
@@ -152,6 +183,9 @@ def delete_organization(orgID):
     Delete organization by id from database
     """
     query = f"DELETE FROM org WHERE organization_id = {orgID};"
+    if (is_admin==False):
+        flash("You are not permitted to do changes", "danger")
+        return redirect(url_for("get_organization"))
     try:
         cur = db.connection.cursor()
         cur.execute(query)
@@ -189,6 +223,9 @@ def update_project(projectID):
     updateData = form.__dict__
     if(form.validate_on_submit()):
         query = "UPDATE project SET title = '{}', summary = '{}', funds = '{}', start_date = '{}', end_date = '{}', grade = '{}', evaluation_date = '{}', program_id = '{}', evaluator_id = '{}', supervisor_id = '{}', executive_id = '{}', organization_id = '{}' WHERE project_id = '{}';".format(updateData['title'].data, updateData['summary'].data, updateData['funds'].data,  updateData['start_date'].data,  updateData['end_date'].data, updateData['grade'].data, updateData['evaluation_date'].data, updateData['program_id'].data, updateData['evaluator_id'].data, updateData['supervisor_id'].data, updateData['executive_id'].data, updateData['organization_id'].data, projectID)
+        if (is_admin==False):
+            flash("You are not permitted to do changes", "danger")
+            return redirect(url_for("get_project"))
         try:
             cur = db.connection.cursor()
             cur.execute(query)
@@ -209,6 +246,9 @@ def delete_project(projectID):
     Delete project by id from database
     """
     query = f"DELETE FROM project WHERE project_id = {projectID};"
+    if (is_admin==False):
+        flash("You are not permitted to do changes", "danger")
+        return redirect(url_for("get_project"))
     try:
         cur = db.connection.cursor()
         cur.execute(query)
@@ -246,6 +286,9 @@ def update_program(programID):
     updateData = form.__dict__
     if(form.validate_on_submit()):
         query = "UPDATE program SET program_name = '{}', department = '{}' WHERE program_id = {};".format(updateData['program_name'].data, updateData['department'].data, programID)
+        if (is_admin==False):
+            flash("You are not permitted to do changes", "danger")
+            return redirect(url_for("get_program"))
         try:
             cur = db.connection.cursor()
             cur.execute(query)
@@ -266,6 +309,9 @@ def delete_program(programID):
     Delete program by id from database
     """
     query = f"DELETE FROM program WHERE program_id = {programID};"
+    if (is_admin==False):
+        flash("You are not permitted to do changes", "danger")
+        return redirect(url_for("get_program"))
     try:
         cur = db.connection.cursor()
         cur.execute(query)
@@ -287,6 +333,9 @@ def insert_researcher():
         newresearcher = form.__dict__
         query = "INSERT INTO researcher(first_name, last_name, sex, date_of_birth, start_date, organization_id) VALUES ('{}', '{}', '{}', '{} 00:00:00', '{} 00:00:00', '{}');".format(newresearcher['first_name'].data, newresearcher['last_name'].data, newresearcher['sex'].data, newresearcher['date_of_birth'].data,
         newresearcher['start_date'].data, newresearcher['organization_id'].data)
+        if (is_admin==False):
+            flash("You are not permitted to do changes", "danger")
+            return redirect(url_for("show_tables"))
         try:
             cur = db.connection.cursor()
             cur.execute(query)
@@ -309,6 +358,9 @@ def insert_program():
     if(request.method == "POST" and form.validate_on_submit()):
         newprogram = form.__dict__
         query = "INSERT INTO program(program_name, department) VALUES ('{}', '{}');".format(newprogram['program_name'].data, newprogram['department'].data)
+        if (is_admin==False):
+            flash("You are not permitted to do changes", "danger")
+            return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
             cur.execute(query)
@@ -332,6 +384,9 @@ def insert_project():
     if(request.method == "POST" and form.validate_on_submit()):
         newproject = form.__dict__
         query = "INSERT INTO project(title, summary, funds, start_date, end_date, grade, evaluation_date, program_id, evaluator_id, supervisor_id, executive_id, organization_id) VALUES ('{}', '{}', '{}', '{} 00:00:00', '{} 00:00:00', '{}', '{} 00:00:00', '{}', '{}', '{}', '{}', '{}');".format(newproject['title'].data, newproject['summary'].data, newproject['funds'].data,  newproject['start_date'].data,  newproject['end_date'].data, newproject['grade'].data, newproject['evaluation_date'].data, newproject['program_id'].data, newproject['evaluator_id'].data, newproject['supervisor_id'].data, newproject['executive_id'].data, newproject['organization_id'].data)
+        if (is_admin==False):
+            flash("You are not permitted to do changes", "danger")
+            return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
             cur.execute(query)
@@ -355,6 +410,9 @@ def insert_organization():
     if(request.method == "POST" and form.validate_on_submit()):
         neworg = form.__dict__
         query = "INSERT INTO org(abbreviation, organization_name, street, street_number, postal_code, city) VALUES ('{}', '{}', '{}', '{}', '{}', '{}');".format(neworg['abbreviation'].data, neworg['organization_name'].data, neworg['street'].data,  neworg['street_number'].data,  neworg['postal_code'].data, neworg['city'].data)
+        if (is_admin==False):
+            flash("You are not permitted to do changes", "danger")
+            return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
             cur.execute(query)
@@ -378,6 +436,9 @@ def insert_deliverable():
     if(request.method == "POST" and form.validate_on_submit()):
         newdeliverable = form.__dict__
         query = "INSERT INTO deliverable(title, summary, due_date, project_id) VALUES ('{}', '{}', '{} 00:00:00', '{}');".format(newdeliverable['title'].data, newdeliverable['summary'].data, newdeliverable['due_date'].data,  newdeliverable['project_id'].data)
+        if (is_admin==False):
+            flash("You are not permitted to do changes", "danger")
+            return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
             cur.execute(query)
@@ -401,6 +462,9 @@ def insert_executive():
     if(request.method == "POST" and form.validate_on_submit()):
         newexecutive = form.__dict__
         query = "INSERT INTO executive(executive_name) VALUES ('{}');".format(newexecutive['executive_name'].data)
+        if (is_admin==False):
+            flash("You are not permitted to do changes", "danger")
+            return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
             cur.execute(query)
@@ -424,6 +488,9 @@ def insert_uinversity():
     if(request.method == "POST" and form.validate_on_submit()):
         newuniversity = form.__dict__
         query = "INSERT INTO university(organization_id, budget_from_minedu) VALUES ('{}', '{}');".format(newuniversity['organization_id'].data, newuniversity['budget_from_minedu'].data)
+        if (is_admin==False):
+            flash("You are not permitted to do changes", "danger")
+            return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
             cur.execute(query)
@@ -448,6 +515,9 @@ def insert_research_center():
         newresearch_center = form.__dict__
         query = "INSERT INTO research_center(organization_id, budget_from_minedu, budget_from_private_acts) VALUES ('{}', '{}', '{}');".format(newresearch_center['organization_id'].data,
         newresearch_center['budget_from_minedu'].data, newresearch_center['budget_from_private_acts'].data)
+        if (is_admin==False):
+            flash("You are not permitted to do changes", "danger")
+            return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
             cur.execute(query)
@@ -471,6 +541,9 @@ def insert_company():
     if(request.method == "POST" and form.validate_on_submit()):
         newcompany = form.__dict__
         query = "INSERT INTO company(organization_id, equity) VALUES ('{}', '{}');".format(newcompany['organization_id'].data, newcompany['equity'].data)
+        if (is_admin==False):
+            flash("You are not permitted to do changes", "danger")
+            return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
             cur.execute(query)
@@ -494,6 +567,9 @@ def insert_phone_number():
     if(request.method == "POST" and form.validate_on_submit()):
         newphone_number = form.__dict__
         query = "INSERT INTO phone_number(organization_id, p_number) VALUES ('{}', '{}');".format(newphone_number['organization_id'].data, newphone_number['p_number'].data)
+        if (is_admin==False):
+            flash("You are not permitted to do changes", "danger")
+            return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
             cur.execute(query)
@@ -517,6 +593,9 @@ def insert_scientific_field():
     if(request.method == "POST" and form.validate_on_submit()):
         newscientific_field = form.__dict__
         query = "INSERT INTO scientific_field(scientific_field_name) VALUES ('{}', '{}');".format(newscientific_field['scientific_field_name'].data)
+        if (is_admin==False):
+            flash("You are not permitted to do changes", "danger")
+            return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
             cur.execute(query)
@@ -540,6 +619,9 @@ def insert_focuses_on():
     if(request.method == "POST" and form.validate_on_submit()):
         newfocuses_on = form.__dict__
         query = "INSERT INTO focuses_on(project_id, scientific_field_name) VALUES ('{}', '{}');".format(newphone_number['project_id'].data, newphone_number['scientific_field_name'].data)
+        if (is_admin==False):
+            flash("You are not permitted to do changes", "danger")
+            return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
             cur.execute(query)
@@ -564,6 +646,9 @@ def insert_works_on():
     if(request.method == "POST" and form.validate_on_submit()):
         newworks_on = form.__dict__
         query = "INSERT INTO works_on(project_id, researcher_id) VALUES ('{}', '{}');".format(newphone_number['project_id'].data, newphone_number['researcher_id'].data)
+        if (is_admin==False):
+            flash("You are not permitted to do changes", "danger")
+            return redirect(url_for("get_tables"))
         try:
             cur = db.connection.cursor()
             cur.execute(query)
