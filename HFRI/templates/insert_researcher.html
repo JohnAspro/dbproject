@@ -42,7 +42,7 @@
                 </div>
                 <div class="form-group col-sm-3 mb-3">
                     {{ form.date_of_birth.label(class = "form-label") }}
-                    {{ form.date_of_birth(class = "form-control", placeholder="Enter date of birth", required = False) }}
+                    {{ form.date_of_birth(class = "form-control", placeholder="YYYY-MM-DD", required = False) }}
                     {% if form.date_of_birth.errors %}
                     <ul class = "errors">
                         {% for error in form.date_of_birth.errors %}

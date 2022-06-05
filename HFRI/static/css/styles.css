@@ -19,6 +19,17 @@
   padding: 20px 40px;
 }
 
+#btn-secondary  {
+  padding: 2 10px;
+  cursor: default;
+  font: -moz-button;
+  line-height: normal;
+  text-align: center;
+  text-shadow: none;
+  white-space: pre;
+  border-width: 2px;
+}
+
 #card {
   text-align: center;
 }

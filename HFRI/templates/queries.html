@@ -1,22 +1,108 @@
 {% extends "global_layout.html" %}
 {% block content %}
 
+
 <center>
   <h1>Frequently asked questions</h1>
 </center>
 
-<center>
-<form action="/queries" method="POST">
-  <label>Choose an executive:</label>
-    <select style="padding: 10px; background:#bc8f8f; border:none;" name="exe">
-      {% for ex in ex %}
-      <option value="{{ex.executive_name}}">{{ ex.executive_name }}</option>
-      {% endfor %}
-    </select>
-  <br><br>
-  <input type="submit" value="Submit">
-</form>
-</center>
+
+
+
+<div class="container">
+    {% include "flash_messages.html" %}
+    <div class="row" id="row">
+        <div class="col-md-12">
+            <div class="card" id="card-container">
+
+              <center>
+              <form action="/queries" method="POST">
+                <label>Choose (executive, start date, duration):</label>
+                <select style="padding: 10px; background:#bc8f8f; border:none;" name="exe">
+                  <option value="">Any</option>
+                  {% for ex in ex %}
+                  <option value="{{ex.executive_name}}">{{ ex.executive_name }}</option>
+                  {% endfor %}
+                </select>
+                <select style="padding: 10px; background:#bc8f8f; border:none;" name="stad">
+                  <option value="">Any</option>
+                  {% for st_d in st_d %}
+                  <option value="{{st_d.y}}">{{ st_d.y }}</option>
+                  {% endfor %}
+                </select>
+                <select style="padding: 10px; background:#bc8f8f; border:none;" name="dur">
+                  <option value="">Any</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                </select>
+                <br><br>
+                <input type="submit" value="Submit">
+              </form>
+              </center>
+
+
+
+
+                <div class="card-body" id="card">
+                {% if q8|length == 0 %}
+                    <h1 style="margin-top: 5rem;">No data matching your criteria were found!</h1>
+                {% else %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                              <h3>Project</h3>
+                                <tr>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for q8 in q8 %}
+                                    <tr>
+                                        <td> {{ q8.title }} </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+                </div>
+
+                <div class="card-body" id="card">
+                {% if q9|length == 0 %}
+                    <h1 style="margin-top: 5rem;"></h1>
+                {% else %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                              <h3>Researchers</h3>
+                                <tr>
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
+                                    <th>Project</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for q9 in q9 %}
+                                    <tr>
+                                        <td> {{ q9.first_name }} </td>
+                                        <td> {{ q9.last_name }} </td>
+                                        <td> {{ q9.title }} </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 
 <div class="container">
@@ -41,7 +127,7 @@
                 <div class="card-body" id="card">
                 {% if q6|length == 0 %}
                 <h3>Funded projects in {{scf.scientific_field}}</h3>
-                    <h1 style="margin-top: 5rem;">No data Found!</h1>
+                    <h1 style="margin-top: 5rem;">No data matching your criteria were found!</h1>
                 {% else %}
                     <div class="table-responsive">
                         <table class="table">
@@ -66,7 +152,7 @@
                 <div class="card-body" id="card">
                 {% if q7|length == 0 %}
                 <h3>Funded projects in {{scf.scientific_field}}</h3>
-                    <h1 style="margin-top: 5rem;">No data Found!</h1>
+                    <h1 style="margin-top: 5rem;">No data matching your criteria were found!</h1>
                 {% else %}
                     <div class="table-responsive">
                         <table class="table">
@@ -141,13 +227,13 @@
               <div class="card" id="card-container">
                   <div class="card-body" id="card">
                   {% if q4|length == 0 %}
-                  <h3>Top 3 scientific field pairs present in projects(Both active and inactive)</h3>
+                  <h3>Top-3 scientific field pairs present in projects(Both active and inactive)</h3>
                       <h1 style="margin-top: 5rem;">No data Found!</h1>
                   {% else %}
                       <div class="table-responsive">
                           <table class="table">
                               <thead>
-                                <h3>Top 3 scientific field pairs present in projects(Both active and inactive)</h3>
+                                <h3>Top-3 scientific field pairs present in projects(Both active and inactive)</h3>
                                   <tr>
                                       <th>Number of Projects</th>
                                       <th>Scientific Field</th>
@@ -196,11 +282,13 @@
                             </thead>
                             <tbody>
                                 {% for q3 in q3 %}
+                                  {% if q3.num_of_proj > 2 %}
                                     <tr>
                                         <td> {{ q3.first_name }} </td>
                                         <td> {{ q3.last_name }} </td>
                                         <td> {{ q3.num_of_proj }} </td>
                                     </tr>
+                                  {% endif %}
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -221,13 +309,13 @@
             <div class="card" id="card-container">
                 <div class="card-body" id="card">
                 {% if q1|length == 0 %}
-                <h3>Top-5 executives of  EL.ID.E.K with the most funding to any company</h3>
+                <h3>Top-5 executives of H.F.R.I with the most funding to any company</h3>
                     <h1 style="margin-top: 5rem;">No data Found!</h1>
                 {% else %}
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
-                              <h3>Top-5 executives of  EL.ID.E.K with the most funding to any company</h3>
+                              <h3>Top-5 executives of H.F.R.I with the most funding to any company</h3>
                                 <tr>
                                     <th>Executive Name</th>
                                     <th>Organization</th>

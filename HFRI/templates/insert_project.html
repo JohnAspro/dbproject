@@ -42,7 +42,7 @@
                 </div>
                 <div class="form-group col-sm-3 mb-3">
                     {{ form.start_date.label(class = "form-label") }}
-                    {{ form.start_date(class = "form-control", placeholder="Enter date of birth", required = False) }}
+                    {{ form.start_date(class = "form-control", placeholder="YYYY-MM-DD", required = False) }}
                     {% if form.start_date.errors %}
                     <ul class = "errors">
                         {% for error in form.start_date.errors %}
@@ -53,7 +53,7 @@
                 </div>
                 <div class="form-group col-sm-3 mb-3">
                     {{ form.end_date.label(class = "form-label") }}
-                    {{ form.end_date(class = "form-control", placeholder="Enter end date", required = False) }}
+                    {{ form.end_date(class = "form-control", placeholder="YYYY-MM-DD", required = False) }}
                     {% if form.end_date.errors %}
                     <ul class = "errors">
                         {% for error in form.end_date.errors %}
@@ -75,7 +75,7 @@
                 </div>
                 <div class="form-group col-sm-3 mb-3">
                     {{ form.evaluation_date.label(class = "form-label") }}
-                    {{ form.evaluation_date(class = "form-control", placeholder="Enter evaluation date", required = False) }}
+                    {{ form.evaluation_date(class = "form-control", placeholder="YYYY-MM-DD", required = False) }}
                     {% if form.evaluation_date.errors %}
                     <ul class = "errors">
                         {% for error in form.evaluation_date.errors %}

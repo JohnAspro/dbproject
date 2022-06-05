@@ -1,3 +1,5 @@
+# forms
+
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Email
@@ -12,7 +14,7 @@ class organization_form(FlaskForm):
 
     street = StringField(label = "Street", validators = [DataRequired(message = "Street is a required field.")])
 
-    street_number = StringField(label = "Street number", validators = [DataRequired(message = "Street Number is a required field.")])
+    street_number = StringField(label = "Street number", validators = [DataRequired(message = "Street number is a required field.")])
 
     postal_code = StringField(label = "Postal code", validators = [DataRequired(message = "Postal code is a required field.")])
 

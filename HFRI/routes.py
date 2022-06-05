@@ -50,7 +50,7 @@ def get_tables():
         column_names = [i[0] for i in cur.description]
         tables = [dict(zip(column_names, entry)) for entry in cur.fetchall() if entry[0]!="p_sf" and entry[0]!="y_o"]
         cur.close()
-        names = ["Companies", "Deliverables", "Executives", "Projects and Scientific fields", "Organizations",
+        names = ["Companies", "Deliverables", "Executives", "Projects and scientific fields", "Organizations",
         "Number of phones per organization", "Phone numbers", "Number of projects per researcher", "Programs", "Projects", "Research centers",
         "Researchers", "Scientific fields", "Universities", "Researchers and projects"]
         return render_template("show_tables.html", names=names, tables=tables, pageTitle = "Data")
@@ -116,9 +116,78 @@ def get_query():
         ex = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
         cur.close()
 
+        cur = db.connection.cursor()
+        cur.execute("SELECT DISTINCT YEAR(start_date) y FROM project ORDER BY y DESC")
+        column_names = [i[0] for i in cur.description]
+        st_d = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
+        cur.close()
+
+        ex2 = request.form.get('exe')
+        st_d2 = request.form.get('stad')
+        du = request.form.get('dur')
+
+        if(ex2 == None):
+            ex2 = ""
+        if(st_d2 == None):
+            st_d2 = ""
+        if(du == None):
+            du = ""
+
+        print("ex2 = ", ex2)
+        print("st_d2 = ", st_d2)
+        print("du = ", du)
+
+        if(ex2 == "" and st_d2 == "" and du == ""):
+            where = " "
+        else:
+            where = " WHERE "
+
+        if(ex2 != ""):
+            ex2 = "e.executive_name = " + "'" + ex2 + "'"
+
+        if(du != ""):
+            du = "YEAR(p.end_date) - YEAR(p.start_date) = " + du
+            if(ex2 != ""):
+                du = " AND " + du
+
+        if(st_d2 != ""):
+             st_d2 = "YEAR(p.start_date) = " + "'" + st_d2 + "'"
+             if(du != "" or ex2 != ""):
+                 st_d2 = " AND " + st_d2
+
+        if(ex2 == ""):
+            ex2 = " "
+
+        if(du == ""):
+            du = " "
+
+        if(st_d2 == ""):
+            st_d2 = " "
+
+
+        print("after process")
+        print("ex2 = ", ex2)
+        print("st_d2 = ", st_d2)
+        print("du = ", du)
+
+        print("SELECT p.title from project p INNER JOIN executive e ON (e.executive_id = p.executive_id)" + where + ex2 + du + st_d2)
+
+        cur = db.connection.cursor()
+        cur.execute("SELECT p.title from project p INNER JOIN executive e ON (e.executive_id = p.executive_id)" + where + ex2 + du + st_d2)
+        column_names = [i[0] for i in cur.description]
+        q8 = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
+        cur.close()
+
+        cur = db.connection.cursor()
+        cur.execute("SELECT r.first_name, r.last_name , p.title  from project p INNER JOIN executive e ON (e.executive_id = p.executive_id) INNER JOIN works_on wo  ON wo.project_id = p.project_id  INNER JOIN researcher r  ON r.researcher_id = wo.researcher_id " + where + ex2 + du + st_d2)
+        column_names = [i[0] for i in cur.description]
+        q9 = [dict(zip(column_names, entry)) for entry in cur.fetchall()]
+        cur.close()
+
+
         return render_template("queries.html",
-                               pageTitle = "FAQ", q1 = q1, q2 = q2, q3 = q3, q4 = q4, q5 = q5, scf = scf, q6 = q6, pr = scf2, q7 = q7,
-                               ex = ex)
+                               pageTitle = "queries Page", q1 = q1, q2 = q2, q3 = q3, q4 = q4, q5 = q5, scf = scf, q6 = q6, pr = scf2, q7 = q7,
+                               ex = ex, st_d = st_d, q8 = q8, q9 = q9)
     except Exception as e:
         ## if the connection to the database fails, return HTTP response 500
         flash(str(e), "danger")
@@ -1015,7 +1084,7 @@ def insert_scientific_field():
     ## when the form is submitted
     if(request.method == "POST" and form.validate_on_submit()):
         newscientific_field = form.__dict__
-        query = "INSERT INTO scientific_field(scientific_field_name) VALUES ('{}', '{}');".format(newscientific_field['scientific_field_name'].data)
+        query = "INSERT INTO scientific_field(scientific_field_name) VALUES ('{}');".format(newscientific_field['scientific_field_name'].data)
         if (is_admin==False):
             flash("You are not permitted to make changes", "danger")
             return redirect(url_for("get_tables"))

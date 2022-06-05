@@ -129,7 +129,7 @@
             </div>
             <div class="modal-footer">
                 {{ form.submit(class = "btn btn btn-success", form = "modal-form", value = "Update") }}
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id= "btn-secondary" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
 
@@ -149,7 +149,7 @@
                 All associated entities will be deleted too. Are you sure?
             </div>
             <div class = "modal-footer">
-                <button type = "button" class = "btn btn-secondary" data-bs-dismiss = "modal">Close</button>
+                <button type = "button" id= "btn-secondary" class = "btn btn-secondary" data-bs-dismiss = "modal">Close</button>
                 <form id = "delete-modal-form">
                     <input type = "submit" class = "btn btn-danger" value = "Delete">
                 </form>
