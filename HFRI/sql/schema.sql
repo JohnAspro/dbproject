@@ -179,3 +179,29 @@ CREATE UNIQUE INDEX idx_organization_name ON org (organization_name);
 CREATE UNIQUE INDEX idx_project_title ON project (title);
 
 CREATE UNIQUE INDEX idx_scientific_field_name ON scientific_field (scientific_field_name);
+
+-- triggers
+
+delimiter $$
+create trigger delete_corg
+after delete on company
+for each row
+begin
+	delete from org where org.organization_id = old.organization_id;
+end $$
+
+create trigger delete_rcorg
+after delete on research_center
+for each row
+begin
+	delete from org where org.organization_id = old.organization_id;
+end $$
+
+create trigger delete_uorg
+after delete on university
+for each row
+begin
+	delete from org where org.organization_id = old.organization_id;
+end $$
+
+delimiter ;

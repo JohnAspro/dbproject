@@ -44,25 +44,25 @@ class project_form(FlaskForm):
 
     summary = StringField(label = "Summary", validators = [DataRequired(message = "Summary is a required field.")])
 
-    funds = StringField(label = "Funds", validators = [DataRequired(message = "Funds is a required field.")])
+    funds = StringField(label = "Funds")
 
-    start_date = StringField(label = "Start date", validators = [DataRequired(message = "Start date is a required field.")])
+    start_date = StringField(label = "Start date")
 
     end_date = StringField(label = "End date", validators = [DataRequired(message = "End date is a required field.")])
 
-    grade = StringField(label = "Grade", validators = [DataRequired(message = "Grade is a required field.")])
+    grade = StringField(label = "Grade")
 
-    evaluation_date = StringField(label = "Evaluation date", validators = [DataRequired(message = "Evaluation date is a required field.")])
+    evaluation_date = StringField(label = "Evaluation date")
 
-    program_id = StringField(label = "Program ID", validators = [DataRequired(message = "Program ID is a required field.")])
+    program_id = StringField(label = "Program ID")
 
-    evaluator_id = StringField(label = "Evaluator ID", validators = [DataRequired(message = "Evaluator ID is a required field.")])
+    evaluator_id = StringField(label = "Evaluator ID")
 
-    supervisor_id = StringField(label = "Supervisor ID", validators = [DataRequired(message = "Supervisor ID is a required field.")])
+    supervisor_id = StringField(label = "Supervisor ID")
 
-    executive_id = StringField(label = "Executive ID", validators = [DataRequired(message = "Executive ID is a required field.")])
+    executive_id = StringField(label = "Executive ID")
 
-    organization_id = StringField(label = "Organization ID", validators = [DataRequired(message = "Organization ID is a required field.")])
+    organization_id = StringField(label = "Organization ID")
 
     submit = SubmitField("Create")
 
