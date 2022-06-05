@@ -1,9 +1,10 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, abort, request
 from flask_mysqldb import MySQL
 from HFRI import app, db
+# import forms
 from HFRI.forms import organization_form, researcher_form, project_form, program_form, deliverable_form, executive_form, university_form, research_center_form, company_form, phone_number_form, scientific_field_form, works_on_form, focuses_on_form
 
-global is_admin
+global is_admin #for login
 is_admin=False
 
 # home page
@@ -25,7 +26,7 @@ def login():
             return redirect(url_for("index"))
         else:
             is_admin=True
-            flash("Logged in!", "success")
+            flash("Logged in", "success")
             return redirect(url_for("index"))
 
 @app.route("/logout", methods=['GET', 'POST'])
@@ -36,7 +37,7 @@ def logout():
         return redirect(url_for("index"))
     else:
         is_admin=False
-        flash("Logged out!", "success")
+        flash("Logged out", "success")
         return redirect(url_for("index"))
 
 @app.route("/show_tables")
