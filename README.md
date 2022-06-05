@@ -1,6 +1,6 @@
 # HFRI (ELIDEK) database implementation project
 A simple implementation for the needs of HFRI institute made with flask framework (python) for the backend, jinja template engine 
-for HTML and CSS styling custom made by Aggelos Kanatas Artworks.
+for HTML and CSS styling.
 
 Team: Angelos-Nikolaos Kanatas, Georgios Triantafyllis, Ioannis Asprogerakas
 
