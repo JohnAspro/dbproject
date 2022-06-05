@@ -54,4 +54,21 @@ pip3 install -r requirements.txt
 
 ##### Be carefull because Tables_in_HFRI migth be lowercase and that is going to cause some misfunctions. To solve that you have to manually change the variable Tables_in_HFRI -> Tables_in_hfri in the show_tables.html file located in the templates directory.
 
-## About the app:
+### To run the app type 
+```python 
+python3 run.py
+``` 
+### After that the app will run at http://localhost:5000/. Finally login to the database throught the site by using the same credentials as shown before to login into MySQL.
+
+## Screenshots:
+
+![landing](Screenshot_from_2022-06-05_21-43-45.png)
+
+![chose](Screenshot_from_2022-06-05_21-43-14.png)
+
+![insert](Screenshot_from_2022-06-05_21-43-45.png)
+
+<!-- ![faq](https://user-images.githubusercontent.com/40044042/156389628-1653aba7-c033-48d0-ac3a-df37374f0d1e.png)
+ -->
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
