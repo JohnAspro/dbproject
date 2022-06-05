@@ -64,11 +64,9 @@ python3 run.py
 
 ![landing](Screenshot_from_2022-06-05_21-43-45.png)
 
-![chose](Screenshot_from_2022-06-05_21-43-14.png)
+![chose](Screenshot_from_2022-06-05_21-42-53.png)
 
-![insert](Screenshot_from_2022-06-05_21-43-45.png)
+![insert](Screenshot_from_2022-06-05_21-43-14.png)
 
-<!-- ![faq](https://user-images.githubusercontent.com/40044042/156389628-1653aba7-c033-48d0-ac3a-df37374f0d1e.png)
- -->
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
