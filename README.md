@@ -4,7 +4,7 @@ for HTML and CSS styling custom made by Aggelos Kanatas Artworks.
 
 Team: Angelos-Nikolaos Kanatas, Georgios Triantafyllis, Ioannis Asprogerakas
 
-## Installation steps for Linux (Debian Core):
+## Prerequisite installation steps for Linux (Debian Core):
 
 #### Get the latest version of Python and Flask framework:
 
@@ -21,15 +21,7 @@ sudo apt install mysql-server
 sudo mysql_secure_installation
 ```
 
-## Installation steps for macOS:
-
-
-#### Get the latest version of Python and Flask framework:
-
-``` bash
-python3
-pip3 install -r requirements.txt
-```
+## Prerequisite installation steps for macOS:
 
 #### Download SQL development packages with homebrew package manager:
 
@@ -39,6 +31,13 @@ pip3 install -r requirements.txt
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 brew install mysql
+```
+
+#### Get the latest version of Python and Flask framework:
+
+``` bash
+brew install python3
+pip3 install -r requirements.txt
 ```
 
 1. Open a terminal and precede the `mysql` command with `sudo` to invoke it with the privileges of the root Ubuntu user in order to gain access to the root MySQL user. This can be done using  
@@ -51,7 +50,8 @@ brew install mysql
 `FLUSH PRIVILEGES;`.
 5. Exit MySQL with `mysql> exit;`.
 7. Go to `HFRI/__init__.py` and change the `app.config["MYSQL_USER"]` and `app.config["MYSQL_PASSWORD"]` lines according to the username and the password you chose before.
+8. Open the `sql` directory, type `sudo mysql -u root -p` and `source schema.sql`, `source insert-data.sql`, `source queries.sql` to create the database and pass all the nesessery data for it to work.  
 
-##### Be carefull because Tables_in_HFRI migth be lowercase and that is going to cause some misfunctions.
-##### To solve that you have to manually change the variable Tables_in_HFRI -> Tables_in_hfri in the show_tables.html file
-##### located in the templates directory.
+##### Be carefull because Tables_in_HFRI migth be lowercase and that is going to cause some misfunctions. To solve that you have to manually change the variable Tables_in_HFRI -> Tables_in_hfri in the show_tables.html file located in the templates directory.
+
+## About the app:
