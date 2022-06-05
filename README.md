@@ -54,11 +54,11 @@ pip3 install -r requirements.txt
 
 ##### If you are using macOS be carefull because Tables_in_HFRI migth be lowercase and that is going to cause some misfunctions. To solve that you have to manually change the variable Tables_in_HFRI -> Tables_in_hfri in the show_tables.html file located in the templates directory.
 
-### To run the app type 
+### To run the app type: 
 ```python 
 python3 run.py
 ``` 
-### After that the app will run at http://localhost:5000/. Finally login to the database throught the site by using the same credentials as shown before to login into MySQL.
+### After that the app will run at http://localhost:5000/. Finally login to the database throught the web app by using the same credentials as shown before for MySQL user so you can be able to manipulate data of the database.
 
 ## Screenshots:
 
