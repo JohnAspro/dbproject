@@ -52,7 +52,7 @@ pip3 install -r requirements.txt
 7. Go to `HFRI/__init__.py` and change the `app.config["MYSQL_USER"]` and `app.config["MYSQL_PASSWORD"]` lines according to the username and the password you chose before.
 8. Open the `sql` directory, type `sudo mysql -u root -p` and `source schema.sql`, `source insert-data.sql`, `source queries.sql` to create the database and pass all the nesessery data for it to work.  
 
-##### Be carefull because Tables_in_HFRI migth be lowercase and that is going to cause some misfunctions. To solve that you have to manually change the variable Tables_in_HFRI -> Tables_in_hfri in the show_tables.html file located in the templates directory.
+##### If you are using macOS be carefull because Tables_in_HFRI migth be lowercase and that is going to cause some misfunctions. To solve that you have to manually change the variable Tables_in_HFRI -> Tables_in_hfri in the show_tables.html file located in the templates directory.
 
 ### To run the app type 
 ```python 
