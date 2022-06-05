@@ -20,7 +20,7 @@ def index():
 def login():
     global is_admin
     if request.method == 'POST':
-        if request.form['username'] != 'angelos_HFRI' or request.form['password'] != '123':
+        if request.form['username'] != 'HFRI_admin' or request.form['password'] != 'admin':
             flash("Invalid password", "danger")
             return redirect(url_for("index"))
         else:
@@ -163,14 +163,6 @@ def get_query():
 
         if(st_d2 == ""):
             st_d2 = " "
-
-
-        print("after process")
-        print("ex2 = ", ex2)
-        print("st_d2 = ", st_d2)
-        print("du = ", du)
-
-        print("SELECT p.title from project p INNER JOIN executive e ON (e.executive_id = p.executive_id)" + where + ex2 + du + st_d2)
 
         cur = db.connection.cursor()
         cur.execute("SELECT p.title from project p INNER JOIN executive e ON (e.executive_id = p.executive_id)" + where + ex2 + du + st_d2)

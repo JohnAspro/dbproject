@@ -1,11 +1,23 @@
 -- 3.1
 SELECT program_name from program;
 
+SELECT executive_name FROM executive;
+
+SELECT DISTINCT YEAR(start_date) y FROM project ORDER BY y DESC;
+
 SELECT p.title from project p
 INNER JOIN executive e
 ON (e.executive_id = p.executive_id)
 WHERE YEAR(p.end_date) - YEAR(p.start_date) = 4
-and e.executive_name = 'Panagiotis Condakos';
+AND e.executive_name = 'Panagiotis Condakos' AND
+YEAR(p.start_date)='2022';
+
+SELECT r.first_name, r.last_name , p.title  from project p
+INNER JOIN executive e ON (e.executive_id = p.executive_id)
+INNER JOIN works_on wo  ON wo.project_id = p.project_id
+INNER JOIN researcher r  ON r.researcher_id = wo.researcher_id
+WHERE e.executive_name='Panagiotis Condakos' AND YEAR(p.end_date) - YEAR(p.start_date) = 4
+AND YEAR(p.start_date)='2022';
 
 -- 3.2
 select * from pr_re;
@@ -68,11 +80,12 @@ ORDER BY money DESC
 LIMIT 5;
 
 -- 3.8
+
 SELECT r.first_name, r.last_name, count(*) num_of_proj from researcher r
 INNER JOIN works_on wo
 ON wo.researcher_id = r.researcher_id
 where wo.project_id IN
 (select p.project_id from project p
-WHERE  p.project_id NOT IN (select d.project_id from deliverable d))
+WHERE p.project_id NOT IN (select d.project_id from deliverable d))
 GROUP BY r.last_name, r.first_name
-HAVING num_of_proj > 4
+HAVING num_of_proj > 4;

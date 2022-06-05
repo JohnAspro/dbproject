@@ -167,3 +167,15 @@ CREATE VIEW p_per_org AS
 INNER JOIN org o
 ON (pn.organization_id = o.organization_id)
 GROUP BY o.organization_name);
+
+-- indexes
+
+CREATE UNIQUE INDEX idx_phone_numbers ON phone_number (organization_id, p_number);
+
+CREATE UNIQUE INDEX idx_researcher_name ON researcher (first_name, last_name);
+
+CREATE UNIQUE INDEX idx_organization_name ON org (organization_name);
+
+CREATE UNIQUE INDEX idx_project_title ON project (title);
+
+CREATE UNIQUE INDEX idx_scientific_field_name ON scientific_field (scientific_field_name);

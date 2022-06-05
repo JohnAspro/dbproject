@@ -7,8 +7,8 @@ app.jinja_env.filters['zip']=zip
 
 ## configuration of database
 
-app.config["MYSQL_USER"] = 'angelos_HFRI'
-app.config["MYSQL_PASSWORD"] = '123'
+app.config["MYSQL_USER"] = 'HFRI_admin'
+app.config["MYSQL_PASSWORD"] = 'admin'
 app.config["MYSQL_DB"] = 'HFRI'
 app.config["MYSQL_HOST"] = ''
 app.config["SECRET_KEY"] = 'dbdbdbdb' ## secret key for sessions (signed cookies). Flask uses it to protect the contents of the user session against tampering.
