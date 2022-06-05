@@ -62,11 +62,11 @@ python3 run.py
 
 ## Screenshots:
 
-![landing](Screenshot_from_2022-06-05_21-43-45.png)
+![landing](home_page.png)
 
-![chose](Screenshot_from_2022-06-05_21-42-53.png)
+![chose](sample_table.png)
 
-![insert](Screenshot_from_2022-06-05_21-43-14.png)
+![insert](FAQ.png)
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
