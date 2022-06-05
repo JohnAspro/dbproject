@@ -1,0 +1,37 @@
+{% extends "global_layout.html" %}
+{% block content %}
+<div class="container">
+    {% include "flash_messages.html" %}
+    <div class="row" id="row">
+        <div class="col-md-12">
+            <form class="form-horizontal" name="research_center-form" method="POST">
+                {{ form.hidden_tag()}}
+                <div class="form-group col-sm-3 mb-3">
+                    {{ form.organization_id.label(class = "form-label") }}
+                    <!-- Setting required to false disables the HTML attribute and leaves input validation to the backend -->
+                    {{ form.organization_id(class = "form-control", placeholder="Enter organization id", required = False) }}
+                    {% if form.organization_id.errors %}
+                    <ul class = "errors">
+                        {% for error in form.organization_id.errors %}
+                        <li class = "text-danger">{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group col-sm-3 mb-3">
+                    {{ form.equity.label(class = "form-label") }}
+                    {{ form.equity(class = "form-control", placeholder="Enter equity", required = False) }}
+                    {% if form.equity.errors %}
+                    <ul class = "errors">
+                        {% for error in form.equity.errors %}
+                        <li class = "text-danger">{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                {{ form.submit(class = "btn btn-primary btn-submit-custom") }}
+            </form>
+    </div>
+    </div>
+</div>
+{% endblock content %}
